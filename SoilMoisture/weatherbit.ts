@@ -6,7 +6,7 @@
 //% color=#f44242 icon="&#xf37a;"
 namespace weatherbit {	
 	/**
-	 * Reads the Moisture Level from the Soil Moisture Sensor. Must be placed in an event block (e.g. button A)
+	 * Reads the Moisture Level from the Soil Moisture Sensor, displays the value and recommends watering as needed. Must be placed in an event block (e.g. button A)
 	 */
 	//% blockId="ReadSoilMoisture" block="Read %Soil_Moisture_Level"
 	export function SoilMoisture(): void {
