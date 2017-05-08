@@ -1,0 +1,25 @@
+{
+    "name": "weatherbit",
+    "version": "0.0.1",
+    "description": "SparkFun weatherbit",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "README.md",
+        "weatherbit.ts"
+    ],
+    "testFiles": [
+    ],
+    "yotta": {
+        "config": {
+            "microbit-dal": {
+                "bluetooth": {
+                    "enabled": 0
+                }
+            }
+        }
+    },
+    "public": true
+}
