@@ -1,6 +1,6 @@
 {
-    "name": "weatherbit",
-    "version": "0.0.1",
+    "name": "pxt-weather-bit",
+    "version": "0.0.0",
     "description": "SparkFun weatherbit",
     "license": "MIT",
     "dependencies": {
@@ -11,15 +11,7 @@
         "weatherbit.ts"
     ],
     "testFiles": [
+        "tests.ts"
     ],
-    "yotta": {
-        "config": {
-            "microbit-dal": {
-                "bluetooth": {
-                    "enabled": 0
-                }
-            }
-        }
-    },
     "public": true
 }
