@@ -2,7 +2,6 @@
  * Functions to operate the weather:bit
  */
 let num_rain_dumps = 0
-let item = 0
 let bme_addr = 0x76
 let ctrl_hum = 0xf2
 
@@ -47,20 +46,22 @@ namespace weatherbit {
         }
         basic.clearScreen()
     }
+
     /**
-    * Reads the Moisture Level from the Soil Moisture Sensor, displays the value and recommends watering as needed. Must be placed in an event block (e.g. button A)
+    * Reads the number of times the rain gauge has filled and emptied
     */
     //% blockId="ReadRain" block="Read Rain Gauge"
     export function ReadRain(): void {
         basic.showNumber(num_rain_dumps)
         basic.clearScreen()
     }
+
     /**
-    * Reads the Moisture Level from the Soil Moisture Sensor, displays the value and recommends watering as needed. Must be placed in an event block (e.g. button A)
+    * Starts polling the digital pin that the rain gauge is on counting the number of times the gauge has filled
+    * and emptied.  This should be done with interrupts, but I can't seem to find a way to use interrupts using pxt
     */
     //% blockId="StartRainPolling" block="Starts the Rain Gauge Monitoring"
     export function StartRainPolling(): void {
-        // There doesn't seem to be interrupts for pxt so polling and debounce is being used
         let rain_gauge = 0
         control.inBackground(() => {
             while (true) {
@@ -74,8 +75,12 @@ namespace weatherbit {
         })
     }
 
+    /**
+     * Read the wind direction form the wind vane.  The mapping is slightly different from the data sheet because the
+     * input voltage is 3.3V instead of 5V and the pull up resistor is 4.7K instead of 10K.
+     */
     //% blockId="ReadWindDir" block="Read Wind Vane"
-    export function Read_wind_dir(): void {
+    export function ReadWindDir(): void {
         let wind_dir = 0
         wind_dir = pins.analogReadPin(AnalogPin.P1)
         basic.showNumber(wind_dir)
@@ -101,12 +106,12 @@ namespace weatherbit {
     }
 
     // Do a write on the requested BME register
-    function Write_bme_reg(reg: number, val: number): void {
+    function WriteBMEReg(reg: number, val: number): void {
         pins.i2cWriteNumber(bme_addr, reg << 8 | val, NumberFormat.Int16BE)
     }
 
     // Do a read on the reqeusted BME register
-    function Read_bme_reg(reg: number) {
+    function ReadBMEReg(reg: number) {
         let val = 0
         pins.i2cWriteNumber(bme_addr, ctrl_hum, NumberFormat.UInt8LE, false)
         val = pins.i2cReadNumber(bme_addr, NumberFormat.UInt8LE, false)
@@ -117,8 +122,8 @@ namespace weatherbit {
     // Test a read write on the hum register on the BME
     //% blockId="TestBmeFunctions" block="Test the BME i2c read write functionality"
     export function TestBmeFunctions(): void {
-        Write_bme_reg(ctrl_hum, 10)
-        let data = Read_bme_reg(ctrl_hum)
+        WriteBMEReg(ctrl_hum, 10)
+        let data = ReadBMEReg(ctrl_hum)
         basic.showNumber(data)
     }
 }
