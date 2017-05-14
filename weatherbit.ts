@@ -4,6 +4,9 @@
 let num_rain_dumps = 0
 let bme_addr = 0x76
 let ctrl_hum = 0xf2
+let ctrl_meas = 0xf4
+let config = 0xf5
+
 
 //% color=#f44242 icon="\u26C8"
 namespace weatherbit {
@@ -113,7 +116,7 @@ namespace weatherbit {
     // Do a read on the reqeusted BME register
     function ReadBMEReg(reg: number) {
         let val = 0
-        pins.i2cWriteNumber(bme_addr, ctrl_hum, NumberFormat.UInt8LE, false)
+        pins.i2cWriteNumber(bme_addr, reg, NumberFormat.UInt8LE, false)
         val = pins.i2cReadNumber(bme_addr, NumberFormat.UInt8LE, false)
         basic.showNumber(val)
         return val
@@ -122,9 +125,30 @@ namespace weatherbit {
     // Test a read write on the hum register on the BME
     //% blockId="TestBmeFunctions" block="Test the BME i2c read write functionality"
     export function TestBmeFunctions(): void {
-        WriteBMEReg(ctrl_hum, 10)
+        WriteBMEReg(ctrl_hum, 3)
         let data = ReadBMEReg(ctrl_hum)
         basic.showNumber(data)
+    }
+
+    // Test a read write on the hum register on the BME
+    //% blockId="SetupBMESensor" block="Set up the BME Sensor"
+    export function SetupBMESensor(): void {
+        WriteBMEReg(ctrl_hum, 0x01)
+        let hum = ReadBMEReg(ctrl_hum)
+        WriteBMEReg(ctrl_meas, 0x25)
+        let meas = ReadBMEReg(ctrl_meas)
+        WriteBMEReg(config, 0)
+        let cfg = ReadBMEReg(config)
+        //basic.showString("h:")
+        //basic.showNumber(hum)
+        //basic.showString("m:")
+        //basic.showNumber(meas)
+        //basic.showString("c:")
+        //basic.showNumber(cfg)
+        let hum_lsb = ReadBMEReg(0xfe)
+        let hum_msb = ReadBMEReg(0xfd)
+        basic.showNumber(hum_lsb)
+        basic.showNumber(hum_msb)
     }
 }
 
