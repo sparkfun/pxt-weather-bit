@@ -124,8 +124,8 @@ namespace weatherbit {
 	//% blockId="ReadWindSpeed" block="Read Wind Speed"
     export function ReadWindSpeed(): void {
 		let wind_speed=0
-		basic.showNumber(num_wind_turns)
-		wind_speed = (num_wind_turns/)*(1492/1000)
+		//basic.showNumber(num_wind_turns)
+		wind_speed = (num_wind_turns)*(1492/1000)
 		basic.showNumber(wind_speed)
         basic.clearScreen()
     }
