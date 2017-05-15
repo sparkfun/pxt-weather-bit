@@ -1,11 +1,18 @@
 /**
  * Functions to operate the weather:bit
  */
+ 
+ //Formatting Questions: 
+ //1.) Should these variables be within the namespace?
+ //2.)  
+
 let num_rain_dumps = 0
-let bme_addr = 0x76
-let ctrl_hum = 0xf2
-let ctrl_meas = 0xf4
-let config = 0xf5
+let num_wind_turns = 0
+let time = 0
+const bme_addr = 0x76
+const ctrl_hum = 0xf2
+const ctrl_meas = 0xf4
+const config = 0xf5
 
 
 //% color=#f44242 icon="\u26C8"
@@ -55,7 +62,10 @@ namespace weatherbit {
     */
     //% blockId="ReadRain" block="Read Rain Gauge"
     export function ReadRain(): void {
-        basic.showNumber(num_rain_dumps)
+		let inchesofRain = 0;
+        //basic.showNumber(num_rain_dumps)
+		inchesofRain=num_rain_dumps*(11/1000) //will be zero until num_rain_dumps is greater than 90 = 1"
+		basic.showNumber(inchesofRain)
         basic.clearScreen()
     }
 
@@ -104,9 +114,50 @@ namespace weatherbit {
         else if (wind_dir < 959 && wind_dir > 939)
             basic.showString("NW")
         else
-            basic.showString("??????")
+            basic.showString("?")
         basic.pause(10)
     }
+	/**
+     * Read the instaneous wind speed form the Anemometer. This is accomplished by polling the digital Pin that the anemometer is on
+	 * coutning the number of times a full rotation occurs in one second - get the number of rotations/second and multiply by 1.492 for MPH. 
+     */
+	//% blockId="ReadWindSpeed" block="Read Wind Speed"
+    export function ReadWindSpeed(): void {
+		let wind_speed=0
+		basic.showNumber(num_wind_turns)
+		wind_speed = (num_wind_turns/)*(1492/1000)
+		basic.showNumber(wind_speed)
+        basic.clearScreen()
+    }
+	/**
+     * Starts polling the digital pin connected to the Anemometer. 1 count of the switch per second is equal to 1.492MPH
+	 * Since we are keeping track of time, best to use this block on a button press so the poll time is accurate. 
+     */
+	//% blockId="StartWindPolling" block="Start the Wind Anemometer Monitoring"
+	export function StartWindPolling(): void {
+		time=0
+		time=input.runningTime()
+		for (time <= 1000)
+		{
+			let wind_gauge = 0
+			control.inBackground(() => 
+			{
+				while (true) 
+				{
+					basic.pause(10)
+					wind_gauge = pins.digitalReadPin(DigitalPin.P8)
+					if (!wind_gauge) 
+					{
+						num_wind_turns++
+						basic.pause(10)
+					}
+				}
+			
+			})
+			
+		}
+	time=0
+	}
 
     // Do a write on the requested BME register
     function WriteBMEReg(reg: number, val: number): void {
