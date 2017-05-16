@@ -1,22 +1,22 @@
 /**
  * Functions to operate the weather:bit
  */
- 
- //Formatting Questions: 
- //1.) Should these variables be within the namespace?
- //2.)  
+
+//Formatting Questions:
+//1.) Should these variables be within the namespace?
+//2.)
 
 let num_rain_dumps = 0
 let num_wind_turns = 0
-let time = 0
-const bme_addr = 0x76
-const ctrl_hum = 0xf2
-const ctrl_meas = 0xf4
-const config = 0xf5
-
+let wind_mph = 0
 
 //% color=#f44242 icon="\u26C8"
 namespace weatherbit {
+    const bme_addr = 0x76
+    const ctrl_hum = 0xf2
+    const ctrl_meas = 0xf4
+    const config = 0xf5
+
 	/**
 	 * Reads the Moisture Level from the Soil Moisture Sensor, displays the value and recommends watering as needed. Must be placed in an event block (e.g. button A)
 	 */
@@ -62,29 +62,29 @@ namespace weatherbit {
     */
     //% blockId="ReadRain" block="Read Rain Gauge"
     export function ReadRain(): void {
-		let inchesofRain = 0;
-        //basic.showNumber(num_rain_dumps)
-		inchesofRain=num_rain_dumps*(11/1000) //will be zero until num_rain_dumps is greater than 90 = 1"
-		basic.showNumber(inchesofRain)
+        let inches_of_rain = ((num_rain_dumps * 11) / 1000) //will be zero until num_rain_dumps is greater than 90 = 1"
+        basic.showNumber(inches_of_rain)
         basic.clearScreen()
     }
 
     /**
-    * Starts polling the digital pin that the rain gauge is on counting the number of times the gauge has filled
-    * and emptied.  This should be done with interrupts, but I can't seem to find a way to use interrupts using pxt
+    * Sets up an event on pin 2 pulse high and event handler to increment rain num_rain_dumps on said event.
     */
     //% blockId="StartRainPolling" block="Starts the Rain Gauge Monitoring"
     export function StartRainPolling(): void {
-        let rain_gauge = 0
-        control.inBackground(() => {
-            while (true) {
-                basic.pause(10)
-                rain_gauge = pins.digitalReadPin(DigitalPin.P2)
-                if (!rain_gauge) {
-                    num_rain_dumps++
-                    basic.pause(100)
-                }
-            }
+        pins.setPull(DigitalPin.P2, PinPullMode.PullUp)
+
+        // Watch pin 2 for a high pulse and send an event
+        pins.onPulsed(DigitalPin.P2, PulseValue.High, () => {
+            control.raiseEvent(
+                EventBusSource.MICROBIT_ID_IO_P2,
+                EventBusValue.MICROBIT_PIN_EVT_RISE
+            )
+        })
+
+        // Register event handler for a pin 2 high pulse
+        control.onEvent(EventBusSource.MICROBIT_ID_IO_P2, EventBusValue.MICROBIT_PIN_EVT_RISE, () => {
+            num_rain_dumps++
         })
     }
 
@@ -119,45 +119,43 @@ namespace weatherbit {
     }
 	/**
      * Read the instaneous wind speed form the Anemometer. This is accomplished by polling the digital Pin that the anemometer is on
-	 * coutning the number of times a full rotation occurs in one second - get the number of rotations/second and multiply by 1.492 for MPH. 
+	 * counting the number of times a full rotation occurs in one second - get the number of rotations/second and multiply by 1.492 for MPH.
      */
-	//% blockId="ReadWindSpeed" block="Read Wind Speed"
+    //% blockId="ReadWindSpeed" block="Read Wind Speed"
     export function ReadWindSpeed(): void {
-		let wind_speed=0
-		//basic.showNumber(num_wind_turns)
-		wind_speed = (num_wind_turns)*(1492/1000)
-		basic.showNumber(wind_speed)
+        basic.showNumber(wind_mph)
         basic.clearScreen()
     }
 	/**
-     * Starts polling the digital pin connected to the Anemometer. 1 count of the switch per second is equal to 1.492MPH
-	 * Since we are keeping track of time, best to use this block on a button press so the poll time is accurate. 
+     * Sets up an event on pin 8 pulse high and event handler to increment num_wind_turns on said event.  Starts
+     * background service to reset num_wind_turns every 2 seconds and calculate MPH.
      */
-	//% blockId="StartWindPolling" block="Start the Wind Anemometer Monitoring"
-	export function StartWindPolling(): void {
-		time=0
-		time=input.runningTime()
-		for (time <= 1000)
-		{
-			let wind_gauge = 0
-			control.inBackground(() => 
-			{
-				while (true) 
-				{
-					basic.pause(10)
-					wind_gauge = pins.digitalReadPin(DigitalPin.P8)
-					if (!wind_gauge) 
-					{
-						num_wind_turns++
-						basic.pause(10)
-					}
-				}
-			
-			})
-			
-		}
-	time=0
-	}
+    //% blockId="StartWindPolling" block="Start the Wind Anemometer Monitoring"
+    export function StartWindPolling(): void {
+        pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
+
+        // Watch pin 8 for a high pulse and send an event
+        pins.onPulsed(DigitalPin.P8, PulseValue.High, () => {
+            control.raiseEvent(
+                EventBusSource.MICROBIT_ID_IO_P8,
+                EventBusValue.MICROBIT_PIN_EVT_RISE
+            )
+        })
+
+        // Register event handler for a pin 8 high pulse
+        control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, EventBusValue.MICROBIT_PIN_EVT_RISE, () => {
+            num_wind_turns++
+        })
+
+        // Update MPH value every 2 seconds
+        control.inBackground(() => {
+            while (true) {
+                basic.pause(2000)
+                wind_mph = (num_wind_turns / 2) / (1492 / 1000)
+                num_wind_turns = 0
+            }
+        })
+    }
 
     // Do a write on the requested BME register
     function WriteBMEReg(reg: number, val: number): void {
@@ -190,12 +188,6 @@ namespace weatherbit {
         let meas = ReadBMEReg(ctrl_meas)
         WriteBMEReg(config, 0)
         let cfg = ReadBMEReg(config)
-        //basic.showString("h:")
-        //basic.showNumber(hum)
-        //basic.showString("m:")
-        //basic.showNumber(meas)
-        //basic.showString("c:")
-        //basic.showNumber(cfg)
         let hum_lsb = ReadBMEReg(0xfe)
         let hum_msb = ReadBMEReg(0xfd)
         basic.showNumber(hum_lsb)
