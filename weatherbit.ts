@@ -17,9 +17,11 @@ namespace weatherbit {
     const ctrl_meas = 0xf4
     const config = 0xf5
 
-	/**
-	 * Reads the Moisture Level from the Soil Moisture Sensor, displays the value and recommends watering as needed. Must be placed in an event block (e.g. button A)
-	 */
+    /**
+    * Reads the Moisture Level from the Soil Moisture Sensor, displays the
+    * value and recommends watering as needed. Must be placed in an event
+    *block (e.g. button A)
+    */
     //% blockId="ReadSoilMoisture" block="Read Soil Moisture"
     export function SoilMoisture(): void {
         let Soil_Moisture = 0
@@ -33,12 +35,12 @@ namespace weatherbit {
         basic.clearScreen()
         if (Soil_Moisture <= 50) {
             basic.showLeds(`
-			. # . # .
-			. . . . .
-			. # # # .
-			# . . . #
-			. . . . .
-			`)
+                . # . # .
+                . . . . .
+                . # # # .
+                # . . . #
+                . . . . .
+                `)
             basic.pause(5000)
             basic.showString("WATER ME!!")
             basic.pause(5000)
@@ -46,12 +48,12 @@ namespace weatherbit {
         basic.clearScreen()
         if (Soil_Moisture > 50) {
             basic.showLeds(`
-			. # . # .
-			. . . . .
-			. . . . .
-			# . . . #
-			. # # # .
-			`)
+                . # . # .
+                . . . . .
+                . . . . .
+                # . . . #
+                . # # # .
+                `)
             basic.pause(5000)
         }
         basic.clearScreen()
@@ -62,13 +64,15 @@ namespace weatherbit {
     */
     //% blockId="ReadRain" block="Read Rain Gauge"
     export function ReadRain(): void {
-        let inches_of_rain = ((num_rain_dumps * 11) / 1000) //will be zero until num_rain_dumps is greater than 90 = 1"
+        //will be zero until num_rain_dumps is greater than 90 = 1"
+        let inches_of_rain = ((num_rain_dumps * 11) / 1000)
         basic.showNumber(inches_of_rain)
         basic.clearScreen()
     }
 
     /**
-    * Sets up an event on pin 2 pulse high and event handler to increment rain num_rain_dumps on said event.
+    * Sets up an event on pin 2 pulse high and event handler to increment rain
+    * num_rain_dumps on said event.
     */
     //% blockId="StartRainPolling" block="Starts the Rain Gauge Monitoring"
     export function StartRainPolling(): void {
@@ -89,9 +93,10 @@ namespace weatherbit {
     }
 
     /**
-     * Read the wind direction form the wind vane.  The mapping is slightly different from the data sheet because the
-     * input voltage is 3.3V instead of 5V and the pull up resistor is 4.7K instead of 10K.
-     */
+    * Read the wind direction form the wind vane.  The mapping is slightly
+    * different from the data sheet because the input voltage is 3.3V
+    * instead of 5V and the pull up resistor is 4.7K instead of 10K.
+    */
     //% blockId="ReadWindDir" block="Read Wind Vane"
     export function ReadWindDir(): void {
         let wind_dir = 0
@@ -117,19 +122,22 @@ namespace weatherbit {
             basic.showString("?")
         basic.pause(10)
     }
-	/**
-     * Read the instaneous wind speed form the Anemometer. This is accomplished by polling the digital Pin that the anemometer is on
-	 * counting the number of times a full rotation occurs in one second - get the number of rotations/second and multiply by 1.492 for MPH.
-     */
+
+    /**
+    * Read the instaneous wind speed form the Anemometer. Starting the wind
+    * speed monitoring updates the wind_mph every 2 seconds.
+    */
     //% blockId="ReadWindSpeed" block="Read Wind Speed"
     export function ReadWindSpeed(): void {
         basic.showNumber(wind_mph)
         basic.clearScreen()
     }
-	/**
-     * Sets up an event on pin 8 pulse high and event handler to increment num_wind_turns on said event.  Starts
-     * background service to reset num_wind_turns every 2 seconds and calculate MPH.
-     */
+
+    /**
+    * Sets up an event on pin 8 pulse high and event handler to increment
+    * num_wind_turns on said event.  Starts background service to reset
+    * num_wind_turns every 2 seconds and calculate MPH.
+    */
     //% blockId="StartWindPolling" block="Start the Wind Anemometer Monitoring"
     export function StartWindPolling(): void {
         pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
@@ -194,5 +202,3 @@ namespace weatherbit {
         basic.showNumber(hum_msb)
     }
 }
-
-
