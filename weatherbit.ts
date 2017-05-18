@@ -2,6 +2,9 @@
  * Functions to operate the weather:bit
  */
 
+
+
+
 let numRainDumps = 0
 let numWindTurns = 0
 let windMPH = 0
@@ -56,33 +59,6 @@ namespace weatherbit {
         basic.clearScreen()
         return soilMoisture
     }
-    /*Example Code
-   // if (SoilMoisture <= 50) {
-        basic.showLeds(`
-            . # . # .
-            . . . . .
-            . # # # .
-            # . . . #
-            . . . . .
-            `)
-        basic.pause(5000)
-        basic.showString("WATER ME!!")
-        basic.pause(5000)
-    }
-    basic.clearScreen()
-    if (SoilMoisture > 50) {
-        basic.showLeds(`
-            . # . # .
-            . . . . .
-            . . . . .
-            # . . . #
-            . # # # .
-            `)
-        basic.pause(5000)
-    }
-    basic.clearScreen()
-}
-*/
 
     /**
     * Reads the number of times the rain gauge has filled and emptied
@@ -200,8 +176,8 @@ namespace weatherbit {
     }
 
     // Sets up BME for in Weather Monitoring Mode.
-    //% blockId="SetupBMESensor" block="Set up the BME Sensor"
-    export function SetUpBME(): void {
+    //% blockId="S" block="Set up the BME Sensor"
+    export function GetWeatherData(): void {
         WriteBMEReg(ctrlHum, 0x01)
         let hum = ReadBMEReg(ctrlHum)
         WriteBMEReg(ctrlMeas, 0x25)
