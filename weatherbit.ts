@@ -20,7 +20,7 @@ namespace weatherbit {
     const tempXlsb = 0xFC
     const humMSB = 0xFD
     const humLSB = 0xFE
-    //Compensation Parameter Storage 
+    //Compensation Parameter Storage
     const digT1 = 0x88
     const digT2 = 0x8A
     const digT3 = 0x8C
@@ -47,16 +47,14 @@ namespace weatherbit {
     */
     //% blockId="ReadSoilMoisture" block="Read Soil Moisture"
     export function SoilMoisture(): number {
-        let SoilMoisture = 0
+        let soilMoisture = 0
         pins.digitalWritePin(DigitalPin.P16, 1)
         basic.pause(10)
-        SoilMoisture = pins.analogReadPin(AnalogPin.P0)
-        basic.pause(100)
-        //basic.showNumber(SoilMoisture)
-        return SoilMoisture
+        soilMoisture = pins.analogReadPin(AnalogPin.P0)
         basic.pause(1000)
         pins.digitalWritePin(DigitalPin.P16, 0)
         basic.clearScreen()
+        return soilMoisture
     }
     /*Example Code
    // if (SoilMoisture <= 50) {
@@ -91,16 +89,14 @@ namespace weatherbit {
     */
     //% blockId="ReadRain" block="Read Rain Gauge"
     export function ReadRain(): number {
-        //will be zero until num_rain_dumps is greater than 90 = 1"
+        // Will be zero until numRainDumps is greater than 90 = 1"
         let inchesOfRain = ((numRainDumps * 11) / 1000)
-        //basic.showNumber(inchesOfRain)
         return inchesOfRain
-        basic.clearScreen()
     }
 
     /**
     * Sets up an event on pin 2 pulse high and event handler to increment rain
-    * num_rain_dumps on said event.
+    * numRainDumps on said event.
     */
     //% blockId="StartRainPolling" block="Starts the Rain Gauge Monitoring"
     export function StartRainPolling(): void {
@@ -121,34 +117,33 @@ namespace weatherbit {
     }
 
     /**
-    * Read the wind direction form the wind vane.  The mapping is slightly
+    * Read the wind direction from the wind vane.  The mapping is slightly
     * different from the data sheet because the input voltage is 3.3V
     * instead of 5V and the pull up resistor is 4.7K instead of 10K.
+    * Returns direction in a string
     */
     //% blockId="ReadWindDir" block="Read Wind Vane"
-    export function ReadWindDir(): void { //what is the syntax for returning a string?
+    export function ReadWindDir(): string {
         let windDir = 0
         windDir = pins.analogReadPin(AnalogPin.P1)
-        basic.showNumber(windDir)
         if (windDir < 906 && windDir > 886)
-            basic.showString("N")
+            return "N"
         else if (windDir < 712 && windDir > 692)
-            basic.showString("NE")
+            return "NE"
         else if (windDir < 415 && windDir > 395)
-            basic.showString("E")
+            return "E"
         else if (windDir < 498 && windDir > 478)
-            basic.showString("SE")
+            return "SE"
         else if (windDir < 584 && windDir > 564)
-            basic.showString("S")
+            return "S"
         else if (windDir < 819 && windDir > 799)
-            basic.showString("SW")
+            return "SW"
         else if (windDir < 988 && windDir > 968)
-            basic.showString("W")
+            return "W"
         else if (windDir < 959 && windDir > 939)
-            basic.showString("NW")
+            return "NW"
         else
-            basic.showString("?")
-        basic.pause(10)
+            return "???"
     }
 
     /**
@@ -157,9 +152,7 @@ namespace weatherbit {
     */
     //% blockId="ReadWindSpeed" block="Read Wind Speed"
     export function ReadWindSpeed(): number {
-        //basic.showNumber(windMPH)
         return windMPH
-        basic.clearScreen()
     }
 
     /**
@@ -201,34 +194,20 @@ namespace weatherbit {
 
     // Do a read on the reqeusted BME register
     function ReadBMEReg(reg: number) {
-        let val = 0
         pins.i2cWriteNumber(bmeAddr, reg, NumberFormat.UInt8LE, false)
-        val = pins.i2cReadNumber(bmeAddr, NumberFormat.UInt8LE, false)
-        basic.showNumber(val)
+        let val = pins.i2cReadNumber(bmeAddr, NumberFormat.UInt8LE, false)
         return val
     }
 
-    // Test a read write on the hum register on the BME
-    //% blockId="TestBmeFunctions" block="Test the BME i2c read write functionality"
-    export function TestBmeFunctions(): void {
-        WriteBMEReg(ctrlHum, 3)
-        let data = ReadBMEReg(ctrlHum)
-        basic.showNumber(data)
-    }
-
-    // Test a read write on the hum register on the BME
+    // Sets up BME for in Weather Monitoring Mode.
     //% blockId="SetupBMESensor" block="Set up the BME Sensor"
-    export function SetupBMESensor(): void {
+    export function SetUpBME(): void {
         WriteBMEReg(ctrlHum, 0x01)
         let hum = ReadBMEReg(ctrlHum)
         WriteBMEReg(ctrlMeas, 0x25)
         let meas = ReadBMEReg(ctrlMeas)
         WriteBMEReg(config, 0)
         let cfg = ReadBMEReg(config)
-        let humLSB = ReadBMEReg(0xfe)
-        let humMSB = ReadBMEReg(0xfd)
-        basic.showNumber(humLSB)
-        basic.showNumber(humMSB)
     }
 }
 
