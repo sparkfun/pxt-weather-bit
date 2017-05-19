@@ -2,15 +2,14 @@
  * Functions to operate the weather:bit
  */
 
-
-
-
 let numRainDumps = 0
 let numWindTurns = 0
 let windMPH = 0
 
 //% color=#f44242 icon="\u26C8"
 namespace weatherbit {
+
+    // BME280 Addresses
     const bmeAddr = 0x76
     const ctrlHum = 0xF2
     const ctrlMeas = 0xF4
@@ -23,7 +22,28 @@ namespace weatherbit {
     const tempXlsb = 0xFC
     const humMSB = 0xFD
     const humLSB = 0xFE
-    //Compensation Parameter Storage
+
+    // Values read from NVM for compensation
+    let digT1Val = 0
+    let digT2Val = 0
+    let digT3Val = 0
+    let digP1Val = 0
+    let digP2Val = 0
+    let digP3Val = 0
+    let digP4Val = 0
+    let digP5Val = 0
+    let digP6Val = 0
+    let digP7Val = 0
+    let digP8Val = 0
+    let digP9Val = 0
+    let digH1Val = 0
+    let digH2Val = 0
+    let digH3Val = 0
+    let digH4Val = 0
+    let digH5Val = 0
+    let digH6Val = 0
+
+    // BME Compensation Parameter Addresses
     const digT1 = 0x88
     const digT2 = 0x8A
     const digT3 = 0x8C
@@ -39,8 +59,9 @@ namespace weatherbit {
     const digH1 = 0xA1
     const digH2 = 0xE1
     const digH3 = 0xE3
-    const digH4 = 0xE4
-    const digH5 = 0xE5
+    const e5Reg = 0xE5
+    const e4Reg = 0xE4
+    const e6Reg = 0xE6
     const digH6 = 0xE7
 
     /**
@@ -169,71 +190,121 @@ namespace weatherbit {
     }
 
     // Do a read on the reqeusted BME register
-    function ReadBMEReg(reg: number) {
+    function ReadBMEReg(reg: number, format: NumberFormat) {
         pins.i2cWriteNumber(bmeAddr, reg, NumberFormat.UInt8LE, false)
-        let val = pins.i2cReadNumber(bmeAddr, NumberFormat.UInt8LE, false)
+        let val = pins.i2cReadNumber(bmeAddr, format, false)
         return val
+    }
+
+    // Reads the temp from the BME sensor and uses compensation for calculator temperature.
+    // Value should be devided by 100 to get DegC
+    //% blockId="GetTemperature" block="Get the current temperature"
+    export function GetTemperature(): number {
+        // Read the temperature registers
+        let tempRegM = ReadBMEReg(tempMSB, NumberFormat.UInt16BE)
+        let tempRegL = ReadBMEReg(tempXlsb, NumberFormat.UInt8LE)
+
+        // Use compensation formula and return result
+        return compensateTemp((tempRegM << 4) | (tempRegL >> 4))
+    }
+
+    // Reads the humidity from the BME sensor and uses compensation for calculator humidity.
+    // Value should be devided by 100 to get DegC
+    //% blockId="GetHumidity" block="Get the current humidity"
+    export function GetHumidity(): number {
+        // Read the pressure registers
+        let humReg = ReadBMEReg(humMSB, NumberFormat.UInt16BE)
+
+        // Compensate and return humidity
+        return compensateHumidity(humReg)
     }
 
     // Sets up BME for in Weather Monitoring Mode.
     //% blockId="S" block="Set up the BME Sensor"
     export function GetWeatherData(): void {
+        // The 0xE5 register is 8 bits where 4 bits go to one value and 4 bits go to another
+        let e5Val = 0
+
+        // Set up the BME in weather monitoring mode
         WriteBMEReg(ctrlHum, 0x01)
-        let hum = ReadBMEReg(ctrlHum)
         WriteBMEReg(ctrlMeas, 0x25)
-        let meas = ReadBMEReg(ctrlMeas)
         WriteBMEReg(config, 0)
-        let cfg = ReadBMEReg(config)
+
+        // Read the temperature registers to do a calculation and set tFine
+        let tempRegM = ReadBMEReg(tempMSB, NumberFormat.UInt16BE)
+        let tempRegL = ReadBMEReg(tempXlsb, NumberFormat.UInt8LE)
+
+        // Get the NVM digital compensations numbers from the device for temp
+        digT1Val = ReadBMEReg(digT1, NumberFormat.UInt16LE)
+        digT2Val = ReadBMEReg(digT2, NumberFormat.Int16LE)
+        digT3Val = ReadBMEReg(digT3, NumberFormat.Int16LE)
+
+        // Get the NVM digital compensation number from the device for pressure
+        digP1Val = ReadBMEReg(digP1, NumberFormat.UInt16LE)
+        digP2Val = ReadBMEReg(digP2, NumberFormat.Int16LE)
+        digP3Val = ReadBMEReg(digP3, NumberFormat.Int16LE)
+        digP4Val = ReadBMEReg(digP4, NumberFormat.Int16LE)
+        digP5Val = ReadBMEReg(digP5, NumberFormat.Int16LE)
+        digP6Val = ReadBMEReg(digP6, NumberFormat.Int16LE)
+        digP7Val = ReadBMEReg(digP7, NumberFormat.Int16LE)
+        digP8Val = ReadBMEReg(digP8, NumberFormat.Int16LE)
+        digP9Val = ReadBMEReg(digP9, NumberFormat.Int16LE)
+
+        // Get the NVM digital compensation number from device for humidity
+        e5Val = ReadBMEReg(e5Reg, NumberFormat.Int8LE)
+        digH1Val = ReadBMEReg(digH1, NumberFormat.UInt8LE)
+        digH2Val = ReadBMEReg(digH2, NumberFormat.Int16LE)
+        digH3Val = ReadBMEReg(digH3, NumberFormat.UInt8LE)
+        digH4Val = (ReadBMEReg(e4Reg, NumberFormat.Int8LE) << 4) | (e5Val & 0xf)
+        digH5Val = (ReadBMEReg(e6Reg, NumberFormat.Int8LE) << 4) | (e5Val >> 4)
+        digH6Val = ReadBMEReg(digH6, NumberFormat.Int8LE)
+
+        // Compensate the temperature to calcule the tFine variable for use in other
+        // measurements
+        let temp = compensateTemp((tempRegM << 4) | (tempRegL >> 4))
+    }
+
+    // Global variable used in all calculations for the BME280
+    let tFine = 0
+
+    // Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
+    // tFine carries fine temperature as global value
+    function compensateTemp(tempRegVal: number): number {
+        let firstConv: number = (((tempRegVal >> 3) - (digT1Val << 1)) * digT2Val) >> 11
+        let secConv: number = (((((tempRegVal >> 4) - digT1Val) * ((tempRegVal >> 4) - (digT1Val))) >> 12) * (digT3Val)) >> 14
+        tFine = firstConv + secConv
+        return (tFine * 5 + 128) >> 8
+    }
+
+    // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractional bits).
+    // Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
+    // This doesn't work because unsigned 64 bit numbers cannot be used.
+    function compensatePressure(pressRegVal: number): number {
+        let firstConv: number = tFine - 128000
+        let secondConv: number = firstConv * firstConv * digP6Val
+        secondConv = secondConv + ((firstConv * digP5Val) << 17)
+        secondConv = secondConv + (digP4Val << 35)
+        firstConv = ((firstConv * firstConv * digP3Val) >> 8) + ((firstConv * digP2Val) << 12)
+        firstConv = ((((1 << 47) + firstConv)) * digP1Val) >> 33
+        if (firstConv == 0) {
+            return 0
+        }
+        let thirdConv: number = 1048576 - pressRegVal
+        thirdConv = (((thirdConv << 31) - secondConv) * 3125) / firstConv
+        firstConv = (digP9Val * (thirdConv >> 13) * (thirdConv >> 13)) >> 25
+        secondConv = (digP8Val * thirdConv) >> 19;
+        thirdConv = ((thirdConv + secondConv + firstConv) >> 8) + (digP7Val << 4)
+        return thirdConv
+    }
+
+    // Returns humidity in %RH as unsigned 32 bit integer in Q22.10 format (22 integer and 10 fractional bits).
+    // Output value of “47445” represents 47445/1024 = 46.333 %RH
+    function compensateHumidity(humRegValue: number): number {
+        let hum: number = (tFine - 76800)
+        hum = (((((humRegValue << 14) - (digH4Val << 20) - (digH5Val * hum)) + 16384) >> 15) * (((((((hum * digH6Val) >> 10) * (((hum * digH3Val) >> 11) + 32768)) >> 10) + 2097152) * digH2Val + 8192) >> 14))
+        hum = hum - (((((hum >> 15) * (hum >> 15)) >> 7) * digH1Val) >> 4)
+        hum = (hum < 0 ? 0 : hum)
+        hum = (hum > 419430400 ? 419430400 : hum)
+        return (hum >> 12)
     }
 }
-
-/*
-// Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
-// t_fine carries fine temperature as global value
-BME280_S32_t t_fine;
-BME280_S32_t BME280_compensate_T_int32(BME280_S32_t adc_T)
-{
-BME280_S32_t var1, var2, T;
-var1 = ((((adc_T>>3) – ((BME280_S32_t)dig_T1<<1))) * ((BME280_S32_t)dig_T2)) >> 11;
-var2 = (((((adc_T>>4) – ((BME280_S32_t)dig_T1)) * ((adc_T>>4) – ((BME280_S32_t)dig_T1))) >> 12) *
-((BME280_S32_t)dig_T3)) >> 14;
-t_fine = var1 + var2;
-T = (t_fine * 5 + 128) >> 8;
-return T;
-}
-BME280_U32_t BME280_compensate_P_int64(BME280_S32_t adc_P)
-{
-BME280_S64_t var1, var2, p;
-var1 = ((BME280_S64_t)t_fine) – 128000;
-var2 = var1 * var1 * (BME280_S64_t)dig_P6;
-var2 = var2 + ((var1*(BME280_S64_t)dig_P5)<<17);
-var2 = var2 + (((BME280_S64_t)dig_P4)<<35);
-var1 = ((var1 * var1 * (BME280_S64_t)dig_P3)>>8) + ((var1 * (BME280_S64_t)dig_P2)<<12);
-var1 = (((((BME280_S64_t)1)<<47)+var1))*((BME280_S64_t)dig_P1)>>33;
-if (var1 == 0)
-{
-return 0; // avoid exception caused by division by zero
-}
-p = 1048576-adc_P;
-p = (((p<<31)-var2)*3125)/var1;
-var1 = (((BME280_S64_t)dig_P9) * (p>>13) * (p>>13)) >> 25;
-var2 = (((BME280_S64_t)dig_P8) * p) >> 19;
-p = ((p + var1 + var2) >> 8) + (((BME280_S64_t)dig_P7)<<4);
-return (BME280_U32_t)p;
-}
-// Returns humidity in %RH as unsigned 32 bit integer in Q22.10 format (22 integer and 10 fractional bits).
-// Output value of “47445” represents 47445/1024 = 46.333 %RH
-BME280_U32_t bme280_compensate_H_int32(BME280_S32_t adc_H)
-{
-BME280_S32_t v_x1_u32r;
-v_x1_u32r = (t_fine – ((BME280_S32_t)76800));
-v_x1_u32r = (((((adc_H << 14) – (((BME280_S32_t)dig_H4) << 20) – (((BME280_S32_t)dig_H5) * v_x1_u32r)) +
-((BME280_S32_t)16384)) >> 15) * (((((((v_x1_u32r * ((BME280_S32_t)dig_H6)) >> 10) * (((v_x1_u32r *((BME280_S32_t)dig_H3)) >> 11) + ((BME280_S32_t)32768))) >> 10) + ((BME280_S32_t)2097152)) *
-((BME280_S32_t)dig_H2) + 8192) >> 14));
-v_x1_u32r = (v_x1_u32r – (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((BME280_S32_t)dig_H1)) >> 4));
-v_x1_u32r = (v_x1_u32r < 0 ? 0 : v_x1_u32r);
-v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
-return (BME280_U32_t)(v_x1_u32r>>12);
-}
-
-*/
