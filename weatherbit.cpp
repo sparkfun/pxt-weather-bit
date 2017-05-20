@@ -24,7 +24,7 @@ namespace weatherbit {
         int16_t digP8;
         int16_t digP9;
 
-        // Unpack the compensation dat
+        // Unpack the compensation data
         comp.readBytes((uint8_t *) &digP1, 0, 2);
         comp.readBytes((uint8_t *) &digP2, 2, 2);
         comp.readBytes((uint8_t *) &digP3, 4, 2);

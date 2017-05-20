@@ -2,12 +2,12 @@
  * Functions to operate the weather:bit
  */
 
-let numRainDumps = 0
-let numWindTurns = 0
-let windMPH = 0
-
 //% color=#f44242 icon="\u26C8"
 namespace weatherbit {
+    // Keep Track of weather measurements
+    let numRainDumps = 0
+    let numWindTurns = 0
+    let windMPH = 0
 
     // BME280 Addresses
     const bmeAddr = 0x76
@@ -23,25 +23,21 @@ namespace weatherbit {
     const humMSB = 0xFD
     const humLSB = 0xFE
 
-    // Values read from NVM for compensation
+    // Stores compensation values for Temperature (must be read from BME280 NVM)
     let digT1Val = 0
     let digT2Val = 0
     let digT3Val = 0
-    let digP1Val = 0
-    let digP2Val = 0
-    let digP3Val = 0
-    let digP4Val = 0
-    let digP5Val = 0
-    let digP6Val = 0
-    let digP7Val = 0
-    let digP8Val = 0
-    let digP9Val = 0
+
+    // Stores compensation values for humidity (must be read from BME280 NVM)
     let digH1Val = 0
     let digH2Val = 0
     let digH3Val = 0
     let digH4Val = 0
     let digH5Val = 0
     let digH6Val = 0
+
+    // Buffer to hold pressure compensation values to pass to the C++ compensation function
+    let digPBuf: Buffer
 
     // BME Compensation Parameter Addresses for Temperature
     const digT1 = 0x88
@@ -68,37 +64,31 @@ namespace weatherbit {
     const e6Reg = 0xE6
     const digH6 = 0xE7
 
-    /**
-     * Function used for simulator, actual implementation is in weatherbit.cpp
-     */
-    //% shim=weatherbit::compensatePressure
-    function compensatePressure(pressRegVal: number, tFine: number, compensation: Buffer) {
-        // Fake function for simulator
-        return 0
-    }
+    /***************************************************************************************
+     * Functions for interfacing with the Weather and Soil Sensors
+     ***************************************************************************************/
 
     /**
     * Reads the Moisture Level from the Soil Moisture Sensor, displays the
     * value and recommends watering as needed. Must be placed in an event
     * block (e.g. button A)
     */
-    //% blockId="ReadSoilMoisture" block="Read Soil Moisture"
-    export function SoilMoisture(): number {
+    //% blockId="readSoilMoisture" block="Read Soil Moisture"
+    export function readSoilMoisture(): number {
         let soilMoisture = 0
         pins.digitalWritePin(DigitalPin.P16, 1)
         basic.pause(10)
         soilMoisture = pins.analogReadPin(AnalogPin.P0)
         basic.pause(1000)
         pins.digitalWritePin(DigitalPin.P16, 0)
-        basic.clearScreen()
         return soilMoisture
     }
 
     /**
     * Reads the number of times the rain gauge has filled and emptied
     */
-    //% blockId="ReadRain" block="Read Rain Gauge"
-    export function ReadRain(): number {
+    //% blockId="readRain" block="Read Rain Gauge"
+    export function readRain(): number {
         // Will be zero until numRainDumps is greater than 90 = 1"
         let inchesOfRain = ((numRainDumps * 11) / 1000)
         return inchesOfRain
@@ -108,8 +98,8 @@ namespace weatherbit {
     * Sets up an event on pin 2 pulse high and event handler to increment rain
     * numRainDumps on said event.
     */
-    //% blockId="StartRainPolling" block="Starts the Rain Gauge Monitoring"
-    export function StartRainPolling(): void {
+    //% blockId="startRainMonitoring" block="Starts the Rain Gauge Monitoring"
+    export function startRainMonitoring(): void {
         pins.setPull(DigitalPin.P2, PinPullMode.PullUp)
 
         // Watch pin 2 for a high pulse and send an event
@@ -132,8 +122,8 @@ namespace weatherbit {
     * instead of 5V and the pull up resistor is 4.7K instead of 10K.
     * Returns direction in a string
     */
-    //% blockId="ReadWindDir" block="Read Wind Vane"
-    export function ReadWindDir(): string {
+    //% blockId="readWindDir" block="Read Wind Vane"
+    export function readWindDir(): string {
         let windDir = 0
         windDir = pins.analogReadPin(AnalogPin.P1)
         if (windDir < 906 && windDir > 886)
@@ -158,20 +148,20 @@ namespace weatherbit {
 
     /**
     * Read the instaneous wind speed form the Anemometer. Starting the wind
-    * speed monitoring updates the wind_mph every 2 seconds.
+    * speed monitoring updates the windMPH every 2 seconds.
     */
-    //% blockId="ReadWindSpeed" block="Read Wind Speed"
-    export function ReadWindSpeed(): number {
+    //% blockId="readWindSpeed" block="Read Wind Speed"
+    export function readWindSpeed(): number {
         return windMPH
     }
 
     /**
     * Sets up an event on pin 8 pulse high and event handler to increment
-    * num_wind_turns on said event.  Starts background service to reset
-    * num_wind_turns every 2 seconds and calculate MPH.
+    * numWindTurns on said event.  Starts background service to reset
+    * numWindTurns every 2 seconds and calculate MPH.
     */
-    //% blockId="StartWindPolling" block="Start the Wind Anemometer Monitoring"
-    export function StartWindPolling(): void {
+    //% blockId="startWindMonitoring" block="Start the Wind Anemometer Monitoring"
+    export function startWindMonitoring(): void {
         pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 
         // Watch pin 8 for a high pulse and send an event
@@ -197,6 +187,10 @@ namespace weatherbit {
         })
     }
 
+    /***************************************************************************************
+     * Functions for interfacing with the BME280
+     ***************************************************************************************/
+
     /**
      * Writes a value to a register on the BME280
      */
@@ -207,22 +201,21 @@ namespace weatherbit {
     /**
      * Reads a value from a register on the BME280
      */
-    function ReadBMEReg(reg: number, format: NumberFormat) {
+    function readBMEReg(reg: number, format: NumberFormat) {
         pins.i2cWriteNumber(bmeAddr, reg, NumberFormat.UInt8LE, false)
         let val = pins.i2cReadNumber(bmeAddr, format, false)
         return val
     }
 
-
     /**
      * Reads the temp from the BME sensor and uses compensation for calculator temperature.
      * Value should be devided by 100 to get DegC
      */
-    //% blockId="GetTemperature" block="Get the current temperature"
-    export function GetTemperature(): number {
+    //% blockId="getTemperature" block="Get the current temperature"
+    export function getTemperature(): number {
         // Read the temperature registers
-        let tempRegM = ReadBMEReg(tempMSB, NumberFormat.UInt16BE)
-        let tempRegL = ReadBMEReg(tempXlsb, NumberFormat.UInt8LE)
+        let tempRegM = readBMEReg(tempMSB, NumberFormat.UInt16BE)
+        let tempRegL = readBMEReg(tempXlsb, NumberFormat.UInt8LE)
 
         // Use compensation formula and return result
         return compensateTemp((tempRegM << 4) | (tempRegL >> 4))
@@ -232,10 +225,10 @@ namespace weatherbit {
      * Reads the humidity from the BME sensor and uses compensation for calculating humidity.
      * Value should be devided by 100 to get DegC
      */
-    //% blockId="GetHumidity" block="Get the current humidity"
-    export function GetHumidity(): number {
+    //% blockId="getHumidity" block="Get the current humidity"
+    export function getHumidity(): number {
         // Read the pressure registers
-        let humReg = ReadBMEReg(humMSB, NumberFormat.UInt16BE)
+        let humReg = readBMEReg(humMSB, NumberFormat.UInt16BE)
 
         // Compensate and return humidity
         return compensateHumidity(humReg)
@@ -245,24 +238,11 @@ namespace weatherbit {
      * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
      * Value should be devided by 100 to get DegC
      */
-    //% blockId="GetPressure" block="Get the current pressure"
-    export function GetPressure(): number {
+    //% blockId="getPressure" block="Get the current pressure"
+    export function getPressure(): number {
         // Read the temperature registers
-        let pressRegM = ReadBMEReg(pressMSB, NumberFormat.UInt16BE)
-        let pressRegL = ReadBMEReg(pressXlsb, NumberFormat.UInt8LE)
-
-        // Fill out a buffer with compensation values to be unpacked in the
-        // C++ implementation of compensatePressure
-        let digPBuf = pins.createBuffer(18)
-        digPBuf.setNumber(NumberFormat.UInt16LE, 0, digP1Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 2, digP2Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 4, digP3Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 6, digP4Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 8, digP5Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 10, digP6Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 12, digP7Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 14, digP8Val)
-        digPBuf.setNumber(NumberFormat.Int16LE, 16, digP9Val)
+        let pressRegM = readBMEReg(pressMSB, NumberFormat.UInt16BE)
+        let pressRegL = readBMEReg(pressXlsb, NumberFormat.UInt8LE)
 
         // Compensate and return pressure
         return compensatePressure((pressRegM << 4) | (pressRegL >> 4), tFine, digPBuf)
@@ -271,10 +251,13 @@ namespace weatherbit {
     /**
      * Sets up BME for in Weather Monitoring Mode.
      */
-    //% blockId="S" block="Set up the BME Sensor"
-    export function GetWeatherData(): void {
+    //% blockId="setupBME280" block="Set up the Temperature, Humidity, and Pressure Sensor"
+    export function setupBME280(): void {
         // The 0xE5 register is 8 bits where 4 bits go to one value and 4 bits go to another
         let e5Val = 0
+
+        // Instantiate buffer that holds the pressure compensation values
+        digPBuf = pins.createBuffer(18)
 
         // Set up the BME in weather monitoring mode
         WriteBMEReg(ctrlHum, 0x01)
@@ -282,33 +265,34 @@ namespace weatherbit {
         WriteBMEReg(config, 0)
 
         // Read the temperature registers to do a calculation and set tFine
-        let tempRegM = ReadBMEReg(tempMSB, NumberFormat.UInt16BE)
-        let tempRegL = ReadBMEReg(tempXlsb, NumberFormat.UInt8LE)
+        let tempRegM = readBMEReg(tempMSB, NumberFormat.UInt16BE)
+        let tempRegL = readBMEReg(tempXlsb, NumberFormat.UInt8LE)
 
         // Get the NVM digital compensations numbers from the device for temp
-        digT1Val = ReadBMEReg(digT1, NumberFormat.UInt16LE)
-        digT2Val = ReadBMEReg(digT2, NumberFormat.Int16LE)
-        digT3Val = ReadBMEReg(digT3, NumberFormat.Int16LE)
+        digT1Val = readBMEReg(digT1, NumberFormat.UInt16LE)
+        digT2Val = readBMEReg(digT2, NumberFormat.Int16LE)
+        digT3Val = readBMEReg(digT3, NumberFormat.Int16LE)
 
-        // Get the NVM digital compensation number from the device for pressure
-        digP1Val = ReadBMEReg(digP1, NumberFormat.UInt16LE)
-        digP2Val = ReadBMEReg(digP2, NumberFormat.Int16LE)
-        digP3Val = ReadBMEReg(digP3, NumberFormat.Int16LE)
-        digP4Val = ReadBMEReg(digP4, NumberFormat.Int16LE)
-        digP5Val = ReadBMEReg(digP5, NumberFormat.Int16LE)
-        digP6Val = ReadBMEReg(digP6, NumberFormat.Int16LE)
-        digP7Val = ReadBMEReg(digP7, NumberFormat.Int16LE)
-        digP8Val = ReadBMEReg(digP8, NumberFormat.Int16LE)
-        digP9Val = ReadBMEReg(digP9, NumberFormat.Int16LE)
+        // Get the NVM digital compensation number from the device for pressure and pack into
+        // a buffer to pass to the C++ implementation of the compensation formula
+        digPBuf.setNumber(NumberFormat.UInt16LE, 0, readBMEReg(digP1, NumberFormat.UInt16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 2, readBMEReg(digP2, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 4, readBMEReg(digP3, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 6, readBMEReg(digP4, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 8, readBMEReg(digP5, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 10, readBMEReg(digP6, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 12, readBMEReg(digP7, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 14, readBMEReg(digP8, NumberFormat.Int16LE))
+        digPBuf.setNumber(NumberFormat.Int16LE, 16, readBMEReg(digP9, NumberFormat.Int16LE))
 
         // Get the NVM digital compensation number from device for humidity
-        e5Val = ReadBMEReg(e5Reg, NumberFormat.Int8LE)
-        digH1Val = ReadBMEReg(digH1, NumberFormat.UInt8LE)
-        digH2Val = ReadBMEReg(digH2, NumberFormat.Int16LE)
-        digH3Val = ReadBMEReg(digH3, NumberFormat.UInt8LE)
-        digH4Val = (ReadBMEReg(e4Reg, NumberFormat.Int8LE) << 4) | (e5Val & 0xf)
-        digH5Val = (ReadBMEReg(e6Reg, NumberFormat.Int8LE) << 4) | (e5Val >> 4)
-        digH6Val = ReadBMEReg(digH6, NumberFormat.Int8LE)
+        e5Val = readBMEReg(e5Reg, NumberFormat.Int8LE)
+        digH1Val = readBMEReg(digH1, NumberFormat.UInt8LE)
+        digH2Val = readBMEReg(digH2, NumberFormat.Int16LE)
+        digH3Val = readBMEReg(digH3, NumberFormat.UInt8LE)
+        digH4Val = (readBMEReg(e4Reg, NumberFormat.Int8LE) << 4) | (e5Val & 0xf)
+        digH5Val = (readBMEReg(e6Reg, NumberFormat.Int8LE) << 4) | (e5Val >> 4)
+        digH6Val = readBMEReg(digH6, NumberFormat.Int8LE)
 
         // Compensate the temperature to calcule the tFine variable for use in other
         // measurements
@@ -317,6 +301,10 @@ namespace weatherbit {
 
     // Global variable used in all calculations for the BME280
     let tFine = 0
+
+    /***************************************************************************************
+     * Compensation formulas for BME280
+     ***************************************************************************************/
 
     /**
      * Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
@@ -341,4 +329,14 @@ namespace weatherbit {
         hum = (hum > 419430400 ? 419430400 : hum)
         return (hum >> 12)
     }
+
+    /**
+     * Function used for simulator, actual implementation is in weatherbit.cpp
+     */
+    //% shim=weatherbit::compensatePressure
+    function compensatePressure(pressRegVal: number, tFine: number, compensation: Buffer) {
+        // Fake function for simulator
+        return 0
+    }
+
 }
