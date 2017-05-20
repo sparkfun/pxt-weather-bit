@@ -43,10 +43,12 @@ namespace weatherbit {
     let digH5Val = 0
     let digH6Val = 0
 
-    // BME Compensation Parameter Addresses
+    // BME Compensation Parameter Addresses for Temperature
     const digT1 = 0x88
     const digT2 = 0x8A
     const digT3 = 0x8C
+
+    // BME Compensation Parameter Addresses for Pressure
     const digP1 = 0x8E
     const digP2 = 0x90
     const digP3 = 0x92
@@ -56,6 +58,8 @@ namespace weatherbit {
     const digP7 = 0x9A
     const digP8 = 0x9C
     const digP9 = 0x9E
+
+    // BME Compensation Parameter Addresses for Humidity
     const digH1 = 0xA1
     const digH2 = 0xE1
     const digH3 = 0xE3
@@ -65,9 +69,18 @@ namespace weatherbit {
     const digH6 = 0xE7
 
     /**
+     * Function used for simulator, actual implementation is in weatherbit.cpp
+     */
+    //% shim=weatherbit::compensatePressure
+    function compensatePressure(pressRegVal: number, tFine: number, compensation: Buffer) {
+        // Fake function for simulator
+        return 0
+    }
+
+    /**
     * Reads the Moisture Level from the Soil Moisture Sensor, displays the
     * value and recommends watering as needed. Must be placed in an event
-    *block (e.g. button A)
+    * block (e.g. button A)
     */
     //% blockId="ReadSoilMoisture" block="Read Soil Moisture"
     export function SoilMoisture(): number {
@@ -184,20 +197,27 @@ namespace weatherbit {
         })
     }
 
-    // Do a write on the requested BME register
+    /**
+     * Writes a value to a register on the BME280
+     */
     function WriteBMEReg(reg: number, val: number): void {
         pins.i2cWriteNumber(bmeAddr, reg << 8 | val, NumberFormat.Int16BE)
     }
 
-    // Do a read on the reqeusted BME register
+    /**
+     * Reads a value from a register on the BME280
+     */
     function ReadBMEReg(reg: number, format: NumberFormat) {
         pins.i2cWriteNumber(bmeAddr, reg, NumberFormat.UInt8LE, false)
         let val = pins.i2cReadNumber(bmeAddr, format, false)
         return val
     }
 
-    // Reads the temp from the BME sensor and uses compensation for calculator temperature.
-    // Value should be devided by 100 to get DegC
+
+    /**
+     * Reads the temp from the BME sensor and uses compensation for calculator temperature.
+     * Value should be devided by 100 to get DegC
+     */
     //% blockId="GetTemperature" block="Get the current temperature"
     export function GetTemperature(): number {
         // Read the temperature registers
@@ -208,8 +228,10 @@ namespace weatherbit {
         return compensateTemp((tempRegM << 4) | (tempRegL >> 4))
     }
 
-    // Reads the humidity from the BME sensor and uses compensation for calculator humidity.
-    // Value should be devided by 100 to get DegC
+    /**
+     * Reads the humidity from the BME sensor and uses compensation for calculating humidity.
+     * Value should be devided by 100 to get DegC
+     */
     //% blockId="GetHumidity" block="Get the current humidity"
     export function GetHumidity(): number {
         // Read the pressure registers
@@ -219,7 +241,36 @@ namespace weatherbit {
         return compensateHumidity(humReg)
     }
 
-    // Sets up BME for in Weather Monitoring Mode.
+    /**
+     * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
+     * Value should be devided by 100 to get DegC
+     */
+    //% blockId="GetPressure" block="Get the current pressure"
+    export function GetPressure(): number {
+        // Read the temperature registers
+        let pressRegM = ReadBMEReg(pressMSB, NumberFormat.UInt16BE)
+        let pressRegL = ReadBMEReg(pressXlsb, NumberFormat.UInt8LE)
+
+        // Fill out a buffer with compensation values to be unpacked in the
+        // C++ implementation of compensatePressure
+        let digPBuf = pins.createBuffer(18)
+        digPBuf.setNumber(NumberFormat.UInt16LE, 0, digP1Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 2, digP2Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 4, digP3Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 6, digP4Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 8, digP5Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 10, digP6Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 12, digP7Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 14, digP8Val)
+        digPBuf.setNumber(NumberFormat.Int16LE, 16, digP9Val)
+
+        // Compensate and return pressure
+        return compensatePressure((pressRegM << 4) | (pressRegL >> 4), tFine, digPBuf)
+    }
+
+    /**
+     * Sets up BME for in Weather Monitoring Mode.
+     */
     //% blockId="S" block="Set up the BME Sensor"
     export function GetWeatherData(): void {
         // The 0xE5 register is 8 bits where 4 bits go to one value and 4 bits go to another
@@ -267,8 +318,10 @@ namespace weatherbit {
     // Global variable used in all calculations for the BME280
     let tFine = 0
 
-    // Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
-    // tFine carries fine temperature as global value
+    /**
+     * Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
+     * tFine carries fine temperature as global value
+     */
     function compensateTemp(tempRegVal: number): number {
         let firstConv: number = (((tempRegVal >> 3) - (digT1Val << 1)) * digT2Val) >> 11
         let secConv: number = (((((tempRegVal >> 4) - digT1Val) * ((tempRegVal >> 4) - (digT1Val))) >> 12) * (digT3Val)) >> 14
@@ -276,29 +329,10 @@ namespace weatherbit {
         return (tFine * 5 + 128) >> 8
     }
 
-    // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8 fractional bits).
-    // Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
-    // This doesn't work because unsigned 64 bit numbers cannot be used.
-    function compensatePressure(pressRegVal: number): number {
-        let firstConv: number = tFine - 128000
-        let secondConv: number = firstConv * firstConv * digP6Val
-        secondConv = secondConv + ((firstConv * digP5Val) << 17)
-        secondConv = secondConv + (digP4Val << 35)
-        firstConv = ((firstConv * firstConv * digP3Val) >> 8) + ((firstConv * digP2Val) << 12)
-        firstConv = ((((1 << 47) + firstConv)) * digP1Val) >> 33
-        if (firstConv == 0) {
-            return 0
-        }
-        let thirdConv: number = 1048576 - pressRegVal
-        thirdConv = (((thirdConv << 31) - secondConv) * 3125) / firstConv
-        firstConv = (digP9Val * (thirdConv >> 13) * (thirdConv >> 13)) >> 25
-        secondConv = (digP8Val * thirdConv) >> 19;
-        thirdConv = ((thirdConv + secondConv + firstConv) >> 8) + (digP7Val << 4)
-        return thirdConv
-    }
-
-    // Returns humidity in %RH as unsigned 32 bit integer in Q22.10 format (22 integer and 10 fractional bits).
-    // Output value of “47445” represents 47445/1024 = 46.333 %RH
+    /**
+     * Returns humidity in %RH as unsigned 32 bit integer in Q22.10 format (22 integer and 10 fractional bits).
+     * Output value of “47445” represents 47445/1024 = 46.333 %RH
+     */
     function compensateHumidity(humRegValue: number): number {
         let hum: number = (tFine - 76800)
         hum = (((((humRegValue << 14) - (digH4Val << 20) - (digH5Val * hum)) + 16384) >> 15) * (((((((hum * digH6Val) >> 10) * (((hum * digH3Val) >> 11) + 32768)) >> 10) + 2097152) * digH2Val + 8192) >> 14))
