@@ -339,4 +339,25 @@ namespace weatherbit {
         return 0
     }
 
+    /***************************************************************************************
+     * One-Wire Communication DS18B20 Waterproof Temperature Sensor
+     ***************************************************************************************/
+
+    /**
+     * Reads the temperature from the one-wire temperature sensor.
+     */
+    //% blockId="readSoilTemp" block="Read Soil Temperature"
+    export function readSoilTemp(): number {
+        return soilTemp()
+    }
+
+    /**
+     * Function used for simulator, actual implementation is in weatherbit.cpp
+     */
+    //% shim=weatherbit::soilTemp
+    function soilTemp() {
+        // Fake function for simulator
+        return 0
+    }
+
 }
