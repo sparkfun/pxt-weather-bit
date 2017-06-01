@@ -247,7 +247,9 @@ namespace weatherbit {
         // Compensate and return pressure
         return compensatePressure((pressRegM << 4) | (pressRegL >> 4), tFine, digPBuf)
     }
-   
+
+
+
     /**
      * Sets up BME for in Weather Monitoring Mode.
      */
