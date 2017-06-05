@@ -342,7 +342,7 @@ namespace weatherbit {
 
 
     /***************************************************************************************
-     * Aquaponics - functions for reading the soil moisture and soil temperature
+     * Functions for interfacing with the soil moisture and soil temperature (aquaponics)
      ***************************************************************************************/
     /**
      * Reads the Moisture Level from the Soil Moisture Sensor, displays the
