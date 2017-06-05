@@ -65,29 +65,12 @@ namespace weatherbit {
     const digH6 = 0xE7
 
     /***************************************************************************************
-     * Functions for interfacing with the Weather and Soil Sensors
+     * Functions for interfacing with the Weather Meters
      ***************************************************************************************/
-
-    /**
-    * Reads the Moisture Level from the Soil Moisture Sensor, displays the
-    * value and recommends watering as needed. Must be placed in an event
-    * block (e.g. button A)
-    */
-    //% blockId="readSoilMoisture" block="Soil Moisture"
-    export function readSoilMoisture(): number {
-        let soilMoisture = 0
-        pins.digitalWritePin(DigitalPin.P16, 1)
-        basic.pause(10)
-        soilMoisture = pins.analogReadPin(AnalogPin.P0)
-        basic.pause(1000)
-        pins.digitalWritePin(DigitalPin.P16, 0)
-        return soilMoisture
-    }
-
     /**
     * Reads the number of times the rain gauge has filled and emptied
     */
-    //% blockId="readRain" block="Rain"
+    //% weight=10 blockId="readRain" block="Rain"
     export function readRain(): number {
         // Will be zero until numRainDumps is greater than 90 = 1"
         let inchesOfRain = ((numRainDumps * 11) / 1000)
@@ -98,7 +81,7 @@ namespace weatherbit {
     * Sets up an event on pin 2 pulse high and event handler to increment rain
     * numRainDumps on said event.
     */
-    //% blockId="startRainMonitoring" block="Start Rain Monitoring"
+    //% weight=100 blockId="startRainMonitoring" block="Start Rain Monitoring"
     export function startRainMonitoring(): void {
         pins.setPull(DigitalPin.P2, PinPullMode.PullUp)
 
@@ -122,7 +105,7 @@ namespace weatherbit {
     * instead of 5V and the pull up resistor is 4.7K instead of 10K.
     * Returns direction in a string
     */
-    //% blockId="readWindDir" block="Wind Direction"
+    //% weight=10 blockId="readWindDir" block="Wind Direction"
     export function readWindDir(): string {
         let windDir = 0
         windDir = pins.analogReadPin(AnalogPin.P1)
@@ -150,7 +133,7 @@ namespace weatherbit {
     * Read the instaneous wind speed form the Anemometer. Starting the wind
     * speed monitoring updates the windMPH every 2 seconds.
     */
-    //% blockId="readWindSpeed" block="Wind Speed"
+    //% weight=10 blockId="readWindSpeed" block="Wind Speed"
     export function readWindSpeed(): number {
         return windMPH
     }
@@ -160,7 +143,7 @@ namespace weatherbit {
     * numWindTurns on said event.  Starts background service to reset
     * numWindTurns every 2 seconds and calculate MPH.
     */
-    //% blockId="startWindMonitoring" block="Start Wind Monitoring"
+    //% weight=100 blockId="startWindMonitoring" block="Start Wind Monitoring"
     export function startWindMonitoring(): void {
         pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 
@@ -211,7 +194,7 @@ namespace weatherbit {
      * Reads the temp from the BME sensor and uses compensation for calculator temperature.
      * Value should be devided by 100 to get DegC
      */
-    //% blockId="getTemperature" block="Temperature"
+    //% weight=50 blockId="getTemperature" block="Temperature"
     export function getTemperature(): number {
         // Read the temperature registers
         let tempRegM = readBMEReg(tempMSB, NumberFormat.UInt16BE)
@@ -225,7 +208,7 @@ namespace weatherbit {
      * Reads the humidity from the BME sensor and uses compensation for calculating humidity.
      * Value should be devided by 100 to get DegC
      */
-    //% blockId="getHumidity" block="Humidity"
+    //% weight=50 blockId="getHumidity" block="Humidity"
     export function getHumidity(): number {
         // Read the pressure registers
         let humReg = readBMEReg(humMSB, NumberFormat.UInt16BE)
@@ -238,7 +221,7 @@ namespace weatherbit {
      * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
      * Value should be devided by 100 to get DegC
      */
-    //% blockId="getPressure" block="Pressure"
+    //% weight=50 blockId="getPressure" block="Pressure"
     export function getPressure(): number {
         // Read the temperature registers
         let pressRegM = readBMEReg(pressMSB, NumberFormat.UInt16BE)
@@ -253,7 +236,7 @@ namespace weatherbit {
     /**
      * Sets up BME for in Weather Monitoring Mode.
      */
-    //% blockId="setupBME280" block="Set up Weather Monitoring"
+    //% weight=100 blockId="setupBME280" block="Set up Weather Monitoring"
     export function setupBME280(): void {
         // The 0xE5 register is 8 bits where 4 bits go to one value and 4 bits go to another
         let e5Val = 0
@@ -304,10 +287,6 @@ namespace weatherbit {
     // Global variable used in all calculations for the BME280
     let tFine = 0
 
-    /***************************************************************************************
-     * Compensation formulas for BME280
-     ***************************************************************************************/
-
     /**
      * Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
      * tFine carries fine temperature as global value
@@ -345,7 +324,7 @@ namespace weatherbit {
    * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
    * Value should be devided by 100 to get DegC
    */
-    //% blockId="getAltitude" block="Altitude"
+    //% weight=50 blockId="getAltitude" block="Altitude"
     export function getAltitude(): number {
         let pressRegM = readBMEReg(pressMSB, NumberFormat.UInt16BE)
         let pressRegL = readBMEReg(pressXlsb, NumberFormat.UInt8LE)
@@ -363,13 +342,27 @@ namespace weatherbit {
 
 
     /***************************************************************************************
-     * One-Wire Communication DS18B20 Waterproof Temperature Sensor
+     * Aquaponics - functions for reading the soil moisture and soil temperature
      ***************************************************************************************/
-
+    /**
+     * Reads the Moisture Level from the Soil Moisture Sensor, displays the
+     * value and recommends watering as needed. Must be placed in an event
+     * block (e.g. button A)
+     */
+    //% weight=20 blockId="readSoilMoisture" block="Soil Moisture"
+    export function readSoilMoisture(): number {
+        let soilMoisture = 0
+        pins.digitalWritePin(DigitalPin.P16, 1)
+        basic.pause(10)
+        soilMoisture = pins.analogReadPin(AnalogPin.P0)
+        basic.pause(1000)
+        pins.digitalWritePin(DigitalPin.P16, 0)
+        return soilMoisture
+    }
     /**
      * Reads the temperature from the one-wire temperature sensor.
      */
-    //% blockId="readSoilTemp" block="Soil Temperature"
+    //% weight=20 blockId="readSoilTemp" block="Soil Temperature"
     export function readSoilTemp(): number {
         return soilTemp()
     }
