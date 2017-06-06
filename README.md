@@ -10,13 +10,13 @@ Not currently integrated into pxt.  It must be manually added.  This package is 
 
 The package adds support for the **weather:bit** add-on board from SparkFun.
 
-*``[Weather Meters](https://www.sparkfun.com/products/8942)`` 
-*``[Soil Moisture Sensor](https://www.sparkfun.com/products/13322) (Analog Read) & [DS18B20 Soil Temperature Sensor](https://www.sparkfun.com/products/11050) (1-wire Digital Read)``
-*``Atmospheric Monitoring with the onboard BME280 sensor (I2C)``
-	*``Temperature``
-	*``Humidity``
-	*``Pressure``
-	*``Altitude``	
+* [Weather Meters](https://www.sparkfun.com/products/8942)
+* [Soil Moisture Sensor](https://www.sparkfun.com/products/13322) (Analog Read) & [DS18B20 Soil Temperature Sensor](https://www.sparkfun.com/products/11050) (1-wire Digital Read)
+* Atmospheric Monitoring with the onboard BME280 sensor (I2C)
+	* Temperature
+	* Humidity
+	* Pressure
+	* Altitude	
 
 ### Micro:bit Pins Used 
 
@@ -43,23 +43,23 @@ At the start of any program which will use the Weather Meter data (Wind Speed, W
 
 ### Atmospheric Data (BME280)
 The BME280 sensor onboard the weather:bit communicates via I2C. The data is returned as a number which can be stored in a variable, shown on the LED matrix, or sent serially to OpenLog. 
-*``_Temperature_ block returns a 4 digit number, when divided by 100 will provide the temperature in degree C with two decimals.`` 
-*``_Humidity_ block returns a 5 digit number, when divided by 1024 will provide the percent Relative Humidity.``
-*``_Alititude_ block returns altitude in meters rounded to the nearest whole number-given P0=1013.25hPa at seal level. (Absolute Altitude)``
-*``_Pressure_ block returns an 8 digit number, when divided by 256 will provide the pressure in Pa. Diving again by 100 will provide measurement in hPa.`` 
+* ``Temperature``block returns a 4 digit number, when divided by 100 will provide the temperature in degree C with two decimals.
+* ``Humidity`` block returns a 5 digit number, when divided by 1024 will provide the percent Relative Humidity.
+* ``Alititude`` block returns altitude in meters rounded to the nearest whole number-given P0=1013.25hPa at seal level. (Absolute Altitude)
+* ``Pressure ``block returns an 8 digit number, when divided by 256 will provide the pressure in Pa. Diving again by 100 will provide measurement in hPa.
 
 
 ### Aquaponics Data 
 The two central screw terminal blocks on the weather:bit provide space for the Soil Moisture Sensor and the DS18B20 Waterproof Temperature Sensor. Use the logical plug-in blocks to read 
 the soil moisture and temperature of the garden system.
-*``_Soil Moisture_ block returns a value between 0 and 1023. 0 being totally dry and 1023 being as wet as water. ``
-*``_Soil Temperature_ block a 4 digit number, when divided by 100 provides the temperature in hundreths of a degree centigrade. ``
+* ``Soil Moisture`` block returns a value between 0 and 1023. 0 being totally dry and 1023 being as wet as water. 
+* ``Soil Temperature`` block a 4 digit number, when divided by 100 provides the temperature in hundreths of a degree centigrade. 
 
 ### Weather Meter Data
 Using SparkFun's Weather Meters it is possible to obtain wind speed, inches of rain, and wind direction using weather:bit. 
-*``_Wind Speed_ returns an integer-the wind speed in mph. ``
-*``_Wind Direction_ returns a string corresponding to the direction of the wind. (N, S, E, W, NE, NW, SE, SW)``
-*``_Rain_ returns an integer - inches of rain.`` 
+* ``Wind Speed`` returns an integer-the wind speed in mph.
+* ``Wind Direction`` returns a string corresponding to the direction of the wind. (N, S, E, W, NE, NW, SE, SW)
+* ``Rain`` returns an integer - inches of rain.
 
 ### Serial Logging with OpenLog
 OpenLog is meant to be mated with the weather:bit with the SD card facing into the board. Make sure the RXI on Openlog connects to TXO on the weather:bit. Using the "serial redirect" block
