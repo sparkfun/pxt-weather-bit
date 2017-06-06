@@ -1,6 +1,6 @@
 # weatherbit
 
-TODO: To use this package, go to https://pxt.microbit.org, click ``Add package`` and search for **weather:bit**.
+TODO: To use this package, go to https://pxt.microbit.org, click ``Add package`` and search for **weatherbit**.
 
 ### ~ hint
 
