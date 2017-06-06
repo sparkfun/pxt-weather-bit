@@ -12,7 +12,7 @@ The package adds support for the **weather:bit** add-on board from SparkFun.
 
 * [Weather Meters](https://www.sparkfun.com/products/8942)
 * [Soil Moisture Sensor](https://www.sparkfun.com/products/13322) (Analog Read) & [DS18B20 Soil Temperature Sensor](https://www.sparkfun.com/products/11050) (1-wire Digital Read)
-* Atmospheric Monitoring with the onboard BME280 sensor (I2C)
+* Atmospheric Monitoring with the onboard [BME280](https://cdn.sparkfun.com/assets/learn_tutorials/4/1/9/BST-BME280_DS001-10.pdf) sensor (I2C)
 	* Temperature
 	* Humidity
 	* Pressure
