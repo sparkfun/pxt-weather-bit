@@ -8,7 +8,8 @@
     },
     "files": [
         "README.md",
-        "weatherbit.ts"
+        "weatherbit.ts",
+        "weatherbit.cpp"
     ],
     "testFiles": [
         "tests.ts"
