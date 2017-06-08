@@ -170,8 +170,7 @@ namespace weatherbit {
     /*
     * calculates the Altitude based on pressure. 
     */
-    //%
-    
+    //%    
     uint32_t calcAltitude(int32_t pressRegVal, int32_t tFine, Buffer compensation) {
        
         return 44330*(1-pow(((compensatePressure(pressRegVal, tFine, compensation)/25600)/1013.25), 0.1903));

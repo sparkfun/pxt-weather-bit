@@ -1,6 +1,6 @@
 {
     "name": "weatherbit",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "SparkFun weatherbit",
     "license": "MIT",
     "dependencies": {
@@ -8,7 +8,8 @@
     },
     "files": [
         "README.md",
-        "weatherbit.ts"
+        "weatherbit.ts",
+        "weatherbit.cpp"
     ],
     "testFiles": [
         "tests.ts"

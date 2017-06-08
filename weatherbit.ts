@@ -384,17 +384,9 @@ namespace weatherbit {
      * Reads the temperature from the one-wire temperature sensor.
      */
     //% weight=10 blockId="weahterbit_readSoilTemp" block="soil temperature"
-    export function readSoilTemperature(): number {
-        return soilTemp()
-    }
-
-    /**
-     * Function used for simulator, actual implementation is in weatherbit.cpp
-     */
     //% shim=weatherbit::soilTemp
-    function soilTemp() {
+    export function readSoilTemperature(): number {
         // Fake function for simulator
         return 0
     }
-
 }

@@ -1,1 +1,30 @@
 // tests go here; this will not be compiled when this package is used as a library
+input.onButtonPressed(Button.AB, () => {
+    basic.showNumber(weatherbit.readSoilTemperature())
+    serial.writeValue("soil temperature", weatherbit.readSoilTemperature())
+    basic.showNumber(weatherbit.readSoilMoisture())
+    serial.writeValue("soil moisture", weatherbit.readSoilMoisture())
+})
+input.onButtonPressed(Button.A, () => {
+    basic.showNumber(weatherbit.readTemperature())
+    serial.writeValue("temperature", weatherbit.readTemperature())
+    basic.showNumber(weatherbit.readHumidity())
+    serial.writeValue("humidity", weatherbit.readHumidity())
+    basic.showNumber(weatherbit.readPressure())
+    serial.writeValue("pressure", weatherbit.readPressure())
+    basic.showNumber(weatherbit.readAltitude())
+    serial.writeValue("altitude", weatherbit.readAltitude())
+})
+input.onButtonPressed(Button.B, () => {
+    basic.showNumber(weatherbit.readWindSpeed())
+    serial.writeValue("wind speed", weatherbit.readWindSpeed())
+    basic.showString(weatherbit.readWindDirection())
+    basic.pause(300)
+    // serial.writeValue("wind direction",
+    // weatherbit.readWindDirection())
+    basic.showNumber(weatherbit.readRain())
+    serial.writeValue("rain", weatherbit.readRain())
+})
+weatherbit.startRainMonitoring()
+weatherbit.startWindMonitoring()
+weatherbit.startWeatherMonitoring()
