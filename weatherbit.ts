@@ -340,7 +340,7 @@ namespace weatherbit {
 
     /**
    * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
-   * Value should be devided by 100 to get DegC
+   * Returns altitude in meters based on pressure at sea level. (absolute altitude)
    */
     //% weight=40 blockGap=28 blockId="weatherbit_readAltitude" block="altitude(M)"
     export function readAltitude(): number {
