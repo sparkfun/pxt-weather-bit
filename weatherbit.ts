@@ -72,6 +72,7 @@ namespace weatherbit {
 
     /**
     * Reads the number of times the rain gauge has filled and emptied
+	* Returns inches of rain. 
     */
     //% weight=30 blockId="weatherbit_readRain" block="rain"
     export function readRain(): number {
@@ -142,7 +143,7 @@ namespace weatherbit {
 
     /**
     * Read the instaneous wind speed form the Anemometer. Starting the wind
-    * speed monitoring updates the windMPH every 2 seconds.
+    * speed monitoring updates the wind in MPH every 2 seconds.
     */
     //% weight=21 blockGap=8 blockId="weatherbit_readWindSpeed" block="wind speed"
     export function readWindSpeed(): number {
@@ -209,9 +210,9 @@ namespace weatherbit {
 
     /**
      * Reads the temp from the BME sensor and uses compensation for calculator temperature.
-     * Value should be devided by 100 to get DegC
+     * Returns 4 digit number. Value should be devided by 100 to get DegC
      */
-    //% weight=43 blockGap=8 blockId="weatherbit_readTemperature" block="temperature"
+    //% weight=43 blockGap=8 blockId="weatherbit_readTemperature" block="temperature(C)"
     export function readTemperature(): number {
         // Read the temperature registers
         let tempRegM = readBMEReg(tempMSB, NumberFormat.UInt16BE)
@@ -223,7 +224,7 @@ namespace weatherbit {
 
     /**
      * Reads the humidity from the BME sensor and uses compensation for calculating humidity.
-     * Value should be devided by 100 to get DegC
+     * returns a 5 digit number. Value should be divided by 1024 to get % relative humidity. 
      */
     //% weight=41 blockGap=8 blockId="weatherbit_readHumidity" block="humidity"
     export function readHumidity(): number {
@@ -236,7 +237,7 @@ namespace weatherbit {
 
     /**
      * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
-     * Value should be devided by 100 to get DegC
+     * Returns an 8 digit number. Value should be divided by 25600 to get hPa. 
      */
     //% weight=42 blockGap=8 blockId="readPressure" block="pressure"
     export function readPressure(): number {
@@ -343,7 +344,7 @@ namespace weatherbit {
    * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
    * Value should be devided by 100 to get DegC
    */
-    //% weight=40 blockGap=28 blockId="weatherbit_readAltitude" block="altitude"
+    //% weight=40 blockGap=28 blockId="weatherbit_readAltitude" block="altitude(M)"
     export function readAltitude(): number {
         startWeatherMonitoring();
 
@@ -366,9 +367,8 @@ namespace weatherbit {
 
 
     /**
-     * Reads the Moisture Level from the Soil Moisture Sensor, displays the
-     * value and recommends watering as needed. Must be placed in an event
-     * block (e.g. button A)
+     * Reads the Moisture Level from the Soil Moisture Sensor.
+	 * Returns a value between 0 adn 1023. 0 being dry adn 1023 being wet.     
      */
     //% weight=11 blockGap=8 blockId="weatherbit_readSoilMoisture" block="soil moisture"
     export function readSoilMoisture(): number {
@@ -383,7 +383,7 @@ namespace weatherbit {
     /**
      * Reads the temperature from the one-wire temperature sensor.
      */
-    //% weight=10 blockId="weahterbit_readSoilTemp" block="soil temperature"
+    //% weight=10 blockId="weahterbit_readSoilTemp" block="soil temperature(C)"
     //% shim=weatherbit::soilTemp
     export function readSoilTemperature(): number {
         // Fake function for simulator
