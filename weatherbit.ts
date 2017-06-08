@@ -110,10 +110,8 @@ namespace weatherbit {
     }
 
     /**
-    * Read the wind direction from the wind vane.  The mapping is slightly
-    * different from the data sheet because the input voltage is 3.3V
-    * instead of 5V and the pull up resistor is 4.7K instead of 10K.
-    * Returns direction in a string
+    * Read the wind direction from the wind vane.  
+	* Retuns a string representing the direction (N, E, S, W, NE, NW, SE, SW)
     */
     //% weight=20 blockId="weatherbit_readWindDir" block="wind direction"
     export function readWindDirection(): string {
@@ -368,7 +366,7 @@ namespace weatherbit {
 
     /**
      * Reads the Moisture Level from the Soil Moisture Sensor.
-	 * Returns a value between 0 adn 1023. 0 being dry adn 1023 being wet.     
+	 * Returns a value between 0 and 1023. 0 being dry and 1023 being wet.     
      */
     //% weight=11 blockGap=8 blockId="weatherbit_readSoilMoisture" block="soil moisture"
     export function readSoilMoisture(): number {
@@ -382,6 +380,8 @@ namespace weatherbit {
     }
     /**
      * Reads the temperature from the one-wire temperature sensor.
+	 * Returns a 4 digit number. value should be divided by 100 to get 
+	 *temperature in hudnreths of a degree centigrade. 
      */
     //% weight=10 blockId="weahterbit_readSoilTemp" block="soil temperature(C)"
     //% shim=weatherbit::soilTemp
