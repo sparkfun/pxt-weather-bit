@@ -1,4 +1,21 @@
 /**
+* Mary West @ SparkFun Electronics 
+* Ryan Mortenson https://github.com/ryanjmortenson
+* June 13, 2017
+* https://github.com/sparkfun/pxt-weather-bit
+
+* Development environment specifics:
+* Written in Microsoft PXT
+* Tested with a SparkFun weather:bit for micro:bit
+*
+* This code is released under the [MIT License](http://opensource.org/licenses/MIT).
+* Please review the LICENSE.md file included with this example. If you have any questions 
+* or concerns with licensing, please contact techsupport@sparkfun.com.
+* Distributed as-is; no warranty is given.
+*/
+
+
+/**
  * Functions to operate the weather:bit
  */
 
@@ -74,8 +91,8 @@ namespace weatherbit {
     * Reads the number of times the rain gauge has filled and emptied
 	* Returns inches of rain. 
     */
-    //% weight=30 blockId="weatherbit_readRain" block="rain"
-    export function readRain(): number {
+    //% weight=30 blockId="weatherbit_rain" block="rain"
+    export function rain(): number {
         startRainMonitoring();
         // Will be zero until numRainDumps is greater than 90 = 1"
         let inchesOfRain = ((numRainDumps * 11) / 1000)
@@ -113,8 +130,8 @@ namespace weatherbit {
     * Read the wind direction from the wind vane.  
 	* Retuns a string representing the direction (N, E, S, W, NE, NW, SE, SW)
     */
-    //% weight=20 blockId="weatherbit_readWindDir" block="wind direction"
-    export function readWindDirection(): string {
+    //% weight=20 blockId="weatherbit_windDir" block="wind direction"
+    export function windDirection(): string {
         startWindMonitoring();
 
         let windDir = 0
@@ -143,8 +160,8 @@ namespace weatherbit {
     * Read the instaneous wind speed form the Anemometer. Starting the wind
     * speed monitoring updates the wind in MPH every 2 seconds.
     */
-    //% weight=21 blockGap=8 blockId="weatherbit_readWindSpeed" block="wind speed"
-    export function readWindSpeed(): number {
+    //% weight=21 blockGap=8 blockId="weatherbit_windSpeed" block="wind speed"
+    export function windSpeed(): number {
         startWindMonitoring();
 
         return windMPH
@@ -210,8 +227,8 @@ namespace weatherbit {
      * Reads the temp from the BME sensor and uses compensation for calculator temperature.
      * Returns 4 digit number. Value should be devided by 100 to get DegC
      */
-    //% weight=43 blockGap=8 blockId="weatherbit_readTemperature" block="temperature(C)"
-    export function readTemperature(): number {
+    //% weight=43 blockGap=8 blockId="weatherbit_temperature" block="temperature(C)"
+    export function temperature(): number {
         // Read the temperature registers
         let tempRegM = readBMEReg(tempMSB, NumberFormat.UInt16BE)
         let tempRegL = readBMEReg(tempXlsb, NumberFormat.UInt8LE)
@@ -224,8 +241,8 @@ namespace weatherbit {
      * Reads the humidity from the BME sensor and uses compensation for calculating humidity.
      * returns a 5 digit number. Value should be divided by 1024 to get % relative humidity. 
      */
-    //% weight=41 blockGap=8 blockId="weatherbit_readHumidity" block="humidity"
-    export function readHumidity(): number {
+    //% weight=41 blockGap=8 blockId="weatherbit_humidity" block="humidity"
+    export function humidity(): number {
         // Read the pressure registers
         let humReg = readBMEReg(humMSB, NumberFormat.UInt16BE)
 
@@ -237,8 +254,8 @@ namespace weatherbit {
      * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
      * Returns an 8 digit number. Value should be divided by 25600 to get hPa. 
      */
-    //% weight=42 blockGap=8 blockId="readPressure" block="pressure"
-    export function readPressure(): number {
+    //% weight=42 blockGap=8 blockId="pressure" block="pressure"
+    export function pressure(): number {
         // Read the temperature registers
         let pressRegM = readBMEReg(pressMSB, NumberFormat.UInt16BE)
         let pressRegL = readBMEReg(pressXlsb, NumberFormat.UInt8LE)
@@ -342,8 +359,8 @@ namespace weatherbit {
    * Reads the pressure from the BME sensor and uses compensation for calculating pressure.
    * Value should be devided by 100 to get DegC
    */
-    //% weight=40 blockGap=28 blockId="weatherbit_readAltitude" block="altitude(M)"
-    export function readAltitude(): number {
+    //% weight=40 blockGap=28 blockId="weatherbit_altitude" block="altitude(M)"
+    export function altitude(): number {
         startWeatherMonitoring();
 
         let pressRegM = readBMEReg(pressMSB, NumberFormat.UInt16BE)
@@ -368,8 +385,8 @@ namespace weatherbit {
      * Reads the Moisture Level from the Soil Moisture Sensor.
 	 * Returns a value between 0 and 1023. 0 being dry and 1023 being wet.     
      */
-    //% weight=11 blockGap=8 blockId="weatherbit_readSoilMoisture" block="soil moisture"
-    export function readSoilMoisture(): number {
+    //% weight=11 blockGap=8 blockId="weatherbit_soilMoisture" block="soil moisture"
+    export function soilMoisture(): number {
         let soilMoisture = 0
         pins.digitalWritePin(DigitalPin.P16, 1)
         basic.pause(10)
@@ -383,9 +400,9 @@ namespace weatherbit {
 	 * Returns a 4 digit number. value should be divided by 100 to get 
 	 *temperature in hudnreths of a degree centigrade. 
      */
-    //% weight=10 blockId="weahterbit_readSoilTemp" block="soil temperature(C)"
+    //% weight=10 blockId="weahterbit_soilTemp" block="soil temperature(C)"
     //% shim=weatherbit::soilTemp
-    export function readSoilTemperature(): number {
+    export function soilTemperature(): number {
         // Fake function for simulator
         return 0
     }
