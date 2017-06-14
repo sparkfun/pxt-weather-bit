@@ -56,11 +56,13 @@ The BME280 sensor onboard the weather:bit communicates via I2C. The data is retu
 
 
 ```blocks
-basic.forever(Button.A, () => {
-    basic.showNumber(weatherbit.temperature())
-    basic.showNumber(weatherbit.humidity())
-    basic.showNumber(weatherbit.pressure())
-    basic.showNumber(weatherbit.altitude())
+basic.forever(() => {
+    weatherbit.startWeatherMonitoring()
+})
+basic.showNumber(weatherbit.temperature())
+basic.showNumber(weatherbit.pressure())
+basic.showNumber(weatherbit.humidity())
+basic.showNumber(weatherbit.altitude())
 })
 weatherbit.startWeatherMonitoring()
 ```
