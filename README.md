@@ -59,12 +59,11 @@ The BME280 sensor onboard the weather:bit communicates via I2C. The data is retu
 basic.forever(() => {
     weatherbit.startWeatherMonitoring()
 })
-input.onButtonPressed(Button.A, () => {
-    basic.showNumber(weatherbit.temperature())
-    basic.showNumber(weatherbit.pressure())
-    basic.showNumber(weatherbit.humidity())
-    basic.showNumber(weatherbit.altitude())
-})
+basic.showNumber(weatherbit.temperature())
+basic.showNumber(weatherbit.pressure())
+basic.showNumber(weatherbit.humidity())
+basic.showNumber(weatherbit.altitude())
+
 ```
 
 ### Aquaponics Data 
