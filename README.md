@@ -2,10 +2,6 @@
 
 TODO: To use this package, go to https://pxt.microbit.org, click ``Add package`` and search for **weatherbit**.
 
-### ~ hint
-
-Not currently integrated into pxt.  It must be manually added.  This package is still under development and subject to changes.
-
 ### ~
 
 ## Usage
@@ -63,10 +59,10 @@ The BME280 sensor onboard the weather:bit communicates via I2C. The data is retu
 
 ```blocks
 basic.forever(Button.A, () => {
-    basic.showNumber(weatherbit.readTemperature())
-    basic.showNumber(weatherbit.readHumidity())
-    basic.showNumber(weatherbit.readPressure())
-    basic.showNumber(weatherbit.readAltitude())
+    basic.showNumber(weatherbit.temperature())
+    basic.showNumber(weatherbit.humidity())
+    basic.showNumber(weatherbit.pressure())
+    basic.showNumber(weatherbit.altitude())
 })
 weatherbit.startWeatherMonitoring()
 ```
@@ -80,8 +76,8 @@ the soil moisture and temperature of the garden system.
 
 ```blocks
 basic.forever(() => {
-    basic.showNumber(weatherbit.readSoilTemperature())
-    basic.showNumber(weatherbit.readSoilMoisture())
+    basic.showNumber(weatherbit.soilTemperature())
+    basic.showNumber(weatherbit.soilMoisture())
 })
 ```
 
@@ -94,12 +90,12 @@ Using SparkFun's Weather Meters it is possible to obtain wind speed, inches of r
 
 ```blocks
 basic.forever(() => {
-    basic.showNumber(weatherbit.readWindSpeed())
-    basic.showString(weatherbit.readWindDirection())
+    basic.showNumber(weatherbit.windSpeed())
+    basic.showString(weatherbit.windDirection())
     basic.pause(300)
     // serial.writeValue("wind direction",
-    // weatherbit.readWindDirection())
-    basic.showNumber(weatherbit.readRain())
+    // weatherbit.windDirection())
+    basic.showNumber(weatherbit.rain())
 })
 weatherbit.startRainMonitoring()
 ```
@@ -118,30 +114,30 @@ with all values from all sensors logged to OpenLog.
 
 ```blocks
 input.onButtonPressed(Button.AB, () => {
-    basic.showNumber(weatherbit.readSoilTemperature())
-    serial.writeValue("soil temperature", weatherbit.readSoilTemperature())
-    basic.showNumber(weatherbit.readSoilMoisture())
-    serial.writeValue("soil moisture", weatherbit.readSoilMoisture())
+    basic.showNumber(weatherbit.soilTemperature())
+    serial.writeValue("soil temperature", weatherbit.soilTemperature())
+    basic.showNumber(weatherbit.soilMoisture())
+    serial.writeValue("soil moisture", weatherbit.soilMoisture())
 })
 input.onButtonPressed(Button.A, () => {
-    basic.showNumber(weatherbit.readTemperature())
-    serial.writeValue("temperature", weatherbit.readTemperature())
-    basic.showNumber(weatherbit.readHumidity())
-    serial.writeValue("humidity", weatherbit.readHumidity())
-    basic.showNumber(weatherbit.readPressure())
-    serial.writeValue("pressure", weatherbit.readPressure())
-    basic.showNumber(weatherbit.readAltitude())
-    serial.writeValue("altitude", weatherbit.readAltitude())
+    basic.showNumber(weatherbit.temperature())
+    serial.writeValue("temperature", weatherbit.temperature())
+    basic.showNumber(weatherbit.humidity())
+    serial.writeValue("humidity", weatherbit.humidity())
+    basic.showNumber(weatherbit.pressure())
+    serial.writeValue("pressure", weatherbit.pressure())
+    basic.showNumber(weatherbit.altitude())
+    serial.writeValue("altitude", weatherbit.altitude())
 })
 input.onButtonPressed(Button.B, () => {
-    basic.showNumber(weatherbit.readWindSpeed())
-    serial.writeValue("wind speed", weatherbit.readWindSpeed())
-    basic.showString(weatherbit.readWindDirection())
+    basic.showNumber(weatherbit.windSpeed())
+    serial.writeValue("wind speed", weatherbit.windSpeed())
+    basic.showString(weatherbit.windDirection())
     basic.pause(300)
     // serial.writeValue("wind direction",
-    // weatherbit.readWindDirection())
-    basic.showNumber(weatherbit.readRain())
-    serial.writeValue("rain", weatherbit.readRain())
+    // weatherbit.windDirection())
+    basic.showNumber(weatherbit.rain())
+    serial.writeValue("rain", weatherbit.rain())
 })
 weatherbit.startRainMonitoring()
 weatherbit.startWindMonitoring()
