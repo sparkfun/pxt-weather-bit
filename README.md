@@ -2,8 +2,6 @@
 
 TODO: To use this package, go to https://pxt.microbit.org, click ``Add package`` and search for **weatherbit**.
 
-### ~
-
 ## Usage
 
 The package adds support for the **weather:bit** add-on board from SparkFun.
