@@ -279,7 +279,7 @@ namespace weatherbit {
 
         // Set up the BME in weather monitoring mode
         WriteBMEReg(ctrlHum, 0x01)
-        WriteBMEReg(ctrlMeas, 0x25)
+        WriteBMEReg(ctrlMeas, 0x27)
         WriteBMEReg(config, 0)
 
         // Read the temperature registers to do a calculation and set tFine
