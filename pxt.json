@@ -9,7 +9,9 @@
     "files": [
         "README.md",
         "weatherbit.ts",
-        "weatherbit.cpp"
+        "weatherbit.cpp",
+        "shims.d.ts",
+        "enums.d.ts"
     ],
     "testFiles": [
         "tests.ts"
