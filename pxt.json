@@ -1,6 +1,6 @@
 {
     "name": "weatherbit",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "description": "SparkFun weatherbit",
     "license": "MIT",
     "dependencies": {
