@@ -1,6 +1,6 @@
 # weatherbit
 
-TODO: To use this package, go to https://pxt.microbit.org, click ``Add package`` and search for **weatherbit**.
+To use this package, go to https://makecode.microbit.org, click ``Add package`` and search for **weatherbit**.
 
 ## Usage
 
@@ -155,7 +155,3 @@ MIT
 ## Supported targets
 
 * for PXT/microbit
-
-```package
-weatherbit=github:sparkfun/pxt-weather-bit
-```
