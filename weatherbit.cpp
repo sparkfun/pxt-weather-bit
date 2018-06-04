@@ -155,15 +155,15 @@ namespace weatherbit {
 
         // Unpack the compensation data        
         auto ptr = compensation->payload;
-        memcpy(((uint8_t *) &digP1, ptr + 0, 2);
-        memcpy(((uint8_t *) &digP2, ptr + 2, 2);
-        memcpy(((uint8_t *) &digP3, ptr + 4, 2);
-        memcpy(((uint8_t *) &digP4, ptr + 6, 2);
-        memcpy(((uint8_t *) &digP5, ptr + 8, 2);
-        memcpy(((uint8_t *) &digP6, ptr + 10, 2);
-        memcpy(((uint8_t *) &digP7, ptr + 12, 2);
-        memcpy(((uint8_t *) &digP8, ptr + 14, 2);
-        memcpy(((uint8_t *) &digP9, ptr + 16, 2);
+        memcpy((uint8_t *) &digP1, ptr + 0, 2);
+        memcpy((uint8_t *) &digP2, ptr + 2, 2);
+        memcpy((uint8_t *) &digP3, ptr + 4, 2);
+        memcpy((uint8_t *) &digP4, ptr + 6, 2);
+        memcpy((uint8_t *) &digP5, ptr + 8, 2);
+        memcpy((uint8_t *) &digP6, ptr + 10, 2);
+        memcpy((uint8_t *) &digP7, ptr + 12, 2);
+        memcpy((uint8_t *) &digP8, ptr + 14, 2);
+        memcpy((uint8_t *) &digP9, ptr + 16, 2);
 
         // Do the compensation
         int64_t firstConv = ((int64_t) tFine) - 12800;
