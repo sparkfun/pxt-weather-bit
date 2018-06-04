@@ -22,6 +22,11 @@
 
 using namespace pxt;
 
+// v0 backward compat support
+#ifndef PXT_BUFFER_DATA
+#define PXT_BUFFER_DATA(buffer) buffer->payload
+#endif
+
 namespace weatherbit {
     MicroBitPin P12 = uBit.io.P12;
     MicroBitPin P13 = uBit.io.P13;
@@ -154,7 +159,7 @@ namespace weatherbit {
         int16_t digP9;
 
         // Unpack the compensation data        
-        auto ptr = compensation->payload;
+        auto ptr = PXT_BUFFER_DATA(compensation);
         memcpy((uint8_t *) &digP1, ptr + 0, 2);
         memcpy((uint8_t *) &digP2, ptr + 2, 2);
         memcpy((uint8_t *) &digP3, ptr + 4, 2);
