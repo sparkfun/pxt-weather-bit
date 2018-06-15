@@ -22,6 +22,11 @@
 
 using namespace pxt;
 
+// v0 backward compat support
+#ifndef PXT_BUFFER_DATA
+#define PXT_BUFFER_DATA(buffer) buffer->payload
+#endif
+
 namespace weatherbit {
     MicroBitPin P12 = uBit.io.P12;
     MicroBitPin P13 = uBit.io.P13;
@@ -142,9 +147,6 @@ namespace weatherbit {
     */
     //%
     uint32_t compensatePressure(int32_t pressRegVal, int32_t tFine, Buffer compensation) {
-        // Create a managed buffer out of the packet compensation data
-        ManagedBuffer comp(compensation);
-
         // Compensation Values
         uint16_t digP1;
         int16_t digP2;
@@ -156,16 +158,17 @@ namespace weatherbit {
         int16_t digP8;
         int16_t digP9;
 
-        // Unpack the compensation data
-        comp.readBytes((uint8_t *) &digP1, 0, 2);
-        comp.readBytes((uint8_t *) &digP2, 2, 2);
-        comp.readBytes((uint8_t *) &digP3, 4, 2);
-        comp.readBytes((uint8_t *) &digP4, 6, 2);
-        comp.readBytes((uint8_t *) &digP5, 8, 2);
-        comp.readBytes((uint8_t *) &digP6, 10, 2);
-        comp.readBytes((uint8_t *) &digP7, 12, 2);
-        comp.readBytes((uint8_t *) &digP8, 14, 2);
-        comp.readBytes((uint8_t *) &digP9, 16, 2);
+        // Unpack the compensation data        
+        auto ptr = PXT_BUFFER_DATA(compensation);
+        memcpy((uint8_t *) &digP1, ptr + 0, 2);
+        memcpy((uint8_t *) &digP2, ptr + 2, 2);
+        memcpy((uint8_t *) &digP3, ptr + 4, 2);
+        memcpy((uint8_t *) &digP4, ptr + 6, 2);
+        memcpy((uint8_t *) &digP5, ptr + 8, 2);
+        memcpy((uint8_t *) &digP6, ptr + 10, 2);
+        memcpy((uint8_t *) &digP7, ptr + 12, 2);
+        memcpy((uint8_t *) &digP8, ptr + 14, 2);
+        memcpy((uint8_t *) &digP9, ptr + 16, 2);
 
         // Do the compensation
         int64_t firstConv = ((int64_t) tFine) - 12800;
