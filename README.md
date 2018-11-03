@@ -1,4 +1,8 @@
-# weatherbit [![Build Status](https://travis-ci.org/sparkfun/pxt-weather-bit.svg?branch=master)](https://travis-ci.org/sparkfun/pxt-weather-bit)
+# weatherbit *en chantier*
+
+*Ce package est toujours en développement et sujet à modification.*
+
+[![Build Status](https://travis-ci.org/sparkfun/pxt-weather-bit.svg?branch=master)](https://travis-ci.org/sparkfun/pxt-weather-bit)
 
 To use this package, go to https://makecode.microbit.org, click ``Add package`` and search for **weatherbit**.
 
