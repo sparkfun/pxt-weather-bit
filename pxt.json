@@ -11,7 +11,9 @@
         "weatherbit.ts",
         "weatherbit.cpp",
         "shims.d.ts",
-        "enums.d.ts"
+        "enums.d.ts",
+        "_locales/fr/weatherbit-strings.json",
+        "_locales/fr/weatherbit-jsdocs-strings.json"
     ],
     "testFiles": [
         "tests.ts"
