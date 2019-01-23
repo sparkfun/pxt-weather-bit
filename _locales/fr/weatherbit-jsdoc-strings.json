@@ -11,5 +11,5 @@
   "weatherbit.startWindMonitoring": "Activer l’anémométrie. Activer la récolte des influxdu capteur de la vitesse du vent (anémomètre).",
   "weatherbit.temperature": "Lire le capteur de températures (thermomètre), diviser le nombre de 4 chiffres par 100\net retourner un résultat en degrés Celsius (C) avec deux décimales.",
   "weatherbit.windDirection": "Lire le capteur de la direction du vent (girouette).\nRetourner une chaîne de caractères indiquant une des 8 directions (N, E, S, W, NE, NW, SE, SW).",
-  "weatherbit.windSpeed": "Vitesse du vent	Lire le capteur de la vitesse du vent (anémomètre).\nRetourner la vitesse en miles par heure (mph) chaque 2 secondes."
+  "weatherbit.windSpeed": "Lire le capteur de la vitesse du vent (anémomètre).\nRetourner la vitesse en miles par heure (mph) chaque 2 secondes."
 }
