@@ -1,156 +1,157 @@
-# weatherbit *en chantier*
-
-*Ce package est toujours en développement et sujet à modification.*
-
-[![Build Status](https://travis-ci.org/sparkfun/pxt-weather-bit.svg?branch=master)](https://travis-ci.org/sparkfun/pxt-weather-bit)
+# weatherbit [![Build Status](https://travis-ci.org/sparkfun/pxt-weather-bit.svg?branch=master)](https://travis-ci.org/sparkfun/pxt-weather-bit)
 
 To use this package, go to https://makecode.microbit.org, click ``Add package`` and search for **weatherbit**.
 
-## Utilisation
+## Usage
 
-Ce paquet prend en charge le périphérique ** weather:bit ** de SparkFun.
+The package adds support for the **weather:bit** add-on board from SparkFun.
 
-* [Compteurs météo] (https://www.sparkfun.com/products/8942)
-* [Capteur d'humidité du sol] (https://www.sparkfun.com/products/13322) (Lecture analogique) & [Capteur de température du sol DS18B20] (https://www.sparkfun.com/products/11050) (1- fil numérique lu)
-* Surveillance atmosphérique avec le capteur [BME280] (https://cdn.sparkfun.com/assets/learn_tutorials/4/1/9/BST-BME280_DS001-10.pdf) intégré (I2C)
-* Température
-* Humidité
-* Pression
-* Altitude
+* [Weather Meters](https://www.sparkfun.com/products/8942)
+* [Soil Moisture Sensor](https://www.sparkfun.com/products/13322) (Analog Read) & [DS18B20 Soil Temperature Sensor](https://www.sparkfun.com/products/11050) (1-wire Digital Read)
+* Atmospheric Monitoring with the onboard [BME280](https://cdn.sparkfun.com/assets/learn_tutorials/4/1/9/BST-BME280_DS001-10.pdf) sensor (I2C)
+	* Temperature
+	* Humidity
+	* Pressure
+	* Altitude	
 
- ### Micro:bit broches utilisés
+### Micro:bit Pins Used 
 
- Les micro-broches suivantes sont utilisées pour la surveillance météorologique, atmosphérique et aquaponique:
+The following micro:bit pins are used for weather, atmospheric and aquaponics monitoring:  
 
-	 * `` P0`` - Données de ll'humidité du sol
-	 * `` P1`` - Direction du vent
-	 * `` P2`` - Données de pluie (en pouces)
-	 * `` P8`` - Données de vitesse du vent
-	 * `` P12`` - Données de température
-	 * `` P14`` - RXI (UART)
-	 * `` P15`` - TXO (UART)
-	 * `` P16`` - Puissance d'humidité du sol
-	 * `` P19`` - BME280 I2C - SCL
-	 * `` P20`` - BME280 I2C - SDA
+* ``P0`` -- Soil Mositure Data 
+* ``P1`` -- Wind Direction 
+* ``P2`` -- Rain Data (in inches)
+* ``P8`` -- Wind Speed Data 
+* ``P12`` -- Temperature Data 
+* ``P14`` -- RXI (UART)
+* ``P15`` -- TXO (UART)
+* ``P16`` -- Soil Moisture Power 
+* ``P19`` -- BME280 I2C - SCL
+* ``P20`` -- BME280 I2C - SDA 
 
-### Fonction de configuration
-Au début de tout programme qui utilisera les données du capteur BME280 (pression, humidité, altitude, température), placez la "surveillance météo" dans un bloc "Toujours".
-On ignore pour le moment pourquoi ce bloc ne fonctionne pas dans le bloc "Au démarrage".
+### Set Up Function
+At the start of any program which will use the BME280 Sensor data (Pressure, Humidity, Altitude, Temperature) place the "Set up Weather Monitoring" in a "Forever" block. 
+It is unknown at this time why this block will not work in the "On Start" block. 
 
-### Démarrer les fonctions de surveillance
+### Start Monitoring Functions 
 
-Au début de tout programme qui utilisera les données météorologiques (vitesse du vent, direction du vent, pluie) placez le `` | démarrer la surveillance du vent | `` et `` | commencer la surveillance de la pluie | `` dans un bloc `` | | on start | ``.
+At the start of any program which will use the 
+weather meter data (Wind Speed, Wind Direction, Rain) 
+place the ``|start wind monitoring|`` and ``|start rain monitoring|`` 
+in a ``|on start|`` block. 
 
-`` `blocs
-weatherbit.startWindMonitoring ();
-weatherbit.startRainMonitoring ();
-weatherbit.startWeatherMonitoring ()
+```blocks
+weatherbit.startWindMonitoring();
+weatherbit.startRainMonitoring();
+weatherbit.startWeatherMonitoring()
 ```
-### Données atmosphériques (BME280)
 
-Le capteur BME280 intégré à la météo:bit communique via I2C. Les données sont renvoyées sous forme de nombre pouvant être stocké dans une variable, affichée sur la matrice de voyants ou envoyé en série à OpenLog.
-Le bloc * `` | temperature | `` retourne un nombre à 4 chiffres. Divisé par 100, la température en degrés C avec deux décimales.
-Le bloc * `` | humidite | `` renvoie un nombre à 5 chiffres, divisé par 1024, il fournit le pourcentage d'humidité relative.
-* Le bloc `` | | altitude | `` renvoie l'altitude en mètres arrondie au nombre entier le plus proche donné P0 = 1013.25hPa au niveau du joint. (Altitude absolue)
-Le bloc * `` | pressure | `` renvoie un nombre à 8 chiffres, lorsqu'il est divisé par 256, fournira la pression en Pa. Une plongée à nouveau de 100 fournira une mesure en hPa.
+### Atmospheric Data (BME280)
+
+The BME280 sensor onboard the weather:bit communicates via I2C. The data is returned as a number which can be stored in a variable, shown on the LED matrix, or sent serially to OpenLog. 
+* ``|temperature|``block returns a 4 digit number, when divided by 100 will provide the temperature in degree C with two decimals.
+* ``|humidity|`` block returns a 5 digit number, when divided by 1024 will provide the percent Relative Humidity.
+* ``|altitude|`` block returns altitude in meters rounded to the nearest whole number-given P0=1013.25hPa at seal level. (Absolute Altitude)
+* ``|pressure|``block returns an 8 digit number, when divided by 256 will provide the pressure in Pa. Diving again by 100 will provide measurement in hPa.
 
 
-`` `blocs
-basic.forever (() => {
-	weatherbit.startWeatherMonitoring ()
-	})
-basic.showNumber (weatherbit.temperature ())
-basic.showNumber (weatherbit.pressure ())
-basic.showNumber (weatherbit.humidity ())
-basic.showNumber (weatherbit.altitude ())
+```blocks
+basic.forever(() => {
+    weatherbit.startWeatherMonitoring()
+})
+basic.showNumber(weatherbit.temperature())
+basic.showNumber(weatherbit.pressure())
+basic.showNumber(weatherbit.humidity())
+basic.showNumber(weatherbit.altitude())
 
-`` `
+```
 
-### Données Aquaponiques
+### Aquaponics Data 
 
-Les deux bornes à vis centraux du weather:bit offrent un espace pour le capteur d'humidité du sol et le capteur de température étanche DS18B20. Utilisez les blocs de plug-ins logiques pour lire
-l'humidité du sol et la température du système de jardin.
-* Le bloc `` | | humidité du sol | `` renvoie une valeur comprise entre 0 et 1023. 0 étant totalement sec et 1023 étant aussi humide que de l'eau.
-* `` | sol temperature | `` bloque un nombre à 4 chiffres, divisé par 100, donne la température en centièmes de degré centigrades.
+The two central screw terminal blocks on the weather:bit provide space for the Soil Moisture Sensor and the DS18B20 Waterproof Temperature Sensor. Use the logical plug-in blocks to read 
+the soil moisture and temperature of the garden system.
+* ``|soil moisture|`` block returns a value between 0 and 1023. 0 being totally dry and 1023 being as wet as water. 
+* ``|soil temperature|`` block a 4 digit number, when divided by 100 provides the temperature in hundreths of a degree centigrade. 
 
-`` `blocs
-basic.forever (() => {
-	basic.showNumber (weatherbit.soilTemperature ())
-	    basic.showNumber (weatherbit.soilMoisture ())
-	    })
-`` `
+```blocks
+basic.forever(() => {
+    basic.showNumber(weatherbit.soilTemperature())
+    basic.showNumber(weatherbit.soilMoisture())
+})
+```
 
-### Données météo
+### Weather Meter Data
 
-Les indicateurs méteo permettent d’obtenir la vitesse du vent, les  centimètres de pluie et la direction du vent à l’aide de weather:bit.
-* `` | wind speed | `` renvoie un entier - la vitesse du vent en mph.
-* `` | wind direction | `` renvoie une chaîne correspondant à la direction du vent. (N, S, E, O, NE, NO, SE, SO)
-* `` | | rain | `` renvoie un entier - pouces de pluie.
+Using SparkFun's Weather Meters it is possible to obtain wind speed, inches of rain, and wind direction using weather:bit. 
+* ``|wind speed|`` returns an integer-the wind speed in mph.
+* ``|wind direction|`` returns a string corresponding to the direction of the wind. (N, S, E, W, NE, NW, SE, SW)
+* ``|rain|`` returns an integer - inches of rain.
 
-`` `blocs
-basic.forever (() => {
-	basic.showNumber (weatherbit.windSpeed ​​())
-	    basic.showString (weatherbit.windDirection ())
-	        base.pause (300)
-	            // serial.writeValue ("direction du vent",
-								   // weatherbit.windDirection ())
-				basic.showNumber (weatherbit.rain ())
-				})
-				weatherbit.startRainMonitoring ()
-				`` `
-				### Journalisation en série avec OpenLog
+```blocks
+basic.forever(() => {
+    basic.showNumber(weatherbit.windSpeed())
+    basic.showString(weatherbit.windDirection())
+    basic.pause(300)
+    // serial.writeValue("wind direction",
+    // weatherbit.windDirection())
+    basic.showNumber(weatherbit.rain())
+})
+weatherbit.startRainMonitoring()
+```
 
-				OpenLog est conçu pour être adapté à la météo:bit avec la carte SD face au tableau. Assurez-vous que le RXI sur Openlog se connecte à TXO sur la météo:bit.
-				Utilisation du bloc `` | serial redirect | ``
-				choisissez TX en tant que P15 et RX en tant que P14 à une vitesse de transmission de 9600.
-				Le firmware sur OpenLog fera le reste!
-				Lorsque vous souhaitez examiner les données, ouvrez simplement le fichier txt créé par OpenLog pour afficher les données.
+### Serial Logging with OpenLog
 
-				Exemple de projet:
-					Le projet suivant lira toutes les données des capteurs atmosphériques du BME280 sur le bouton A, lira toutes les données de météo sur le bouton B et les données aquaponiques sur les boutons A + B.
-					avec toutes les valeurs de tous les capteurs connectés à OpenLog.
+OpenLog is meant to be mated with the weather:bit with the SD card facing into the board. Make sure the RXI on Openlog connects to TXO on the weather:bit. 
+Using the ``|serial redirect|`` block
+choose TX as P15 and RX as P14 at a baud rate of 9600. 
+The firmware on OpenLog will do the rest! 
+When you want to review the data simple open the txt file created by OpenLog to view the data. 
 
-					`` `blocs
-					input.onButtonPressed (Button.AB, () => {
-						basic.showNumber (weatherbit.soilTemperature ())
-						    serial.writeValue ("température du sol", weatherbit.soilTemperature ())
-						        basic.showNumber (weatherbit.soilMoisture ())
-						            serial.writeValue ("humidité du sol", weatherbit.soilMoisture ())
-						            })
-					input.onButtonPressed (Button.A, () => {
-						basic.showNumber (weatherbit.temperature ())
-						    serial.writeValue ("temperature", weatherbit.temperature ())
-						        basic.showNumber (weatherbit.humidity ())
-						            serial.writeValue ("humidité ", weatherbit.humidity ())
-						                basic.showNumber (weatherbit.pressure ())
-						                    serial.writeValue ("pressure", weatherbit.pressure ())
-						                        basic.showNumber (weatherbit.altitude ())
-						                            serial.writeValue ("altitude", weatherbit.altitude ())
-						                            })
-					input.onButtonPressed (Button.B, () => {
-						basic.showNumber (weatherbit.windSpeed ​​())
-						    serial.writeValue ("vitesse du vent", weatherbit.windSpeed ​​())
-						        basic.showString (weatherbit.windDirection ())
-						            base.pause (300)
-						                // serial.writeValue ("direction du vent",
-											// weatherbit.windDirection ())
-										basic.showNumber (weatherbit.rain ())
-										    serial.writeValue ("pluie", weatherbit.rain ())
-										    })
-										weatherbit.startRainMonitoring ()
-										weatherbit.startWindMonitoring ()
-										weatherbit.startWeatherMonitoring ()
-										serial.redirect (
-											SerialPin.P15,
-											SerialPin.P14,
-											BaudRate.BaudRate9600
-											)
-										`` `
+Example Project:
+The following project will read all atmospheric sensor data from the BME280 on button A press, will read all weather meter data on button B press, and aquaponics data on Button A+B press 
+with all values from all sensors logged to OpenLog. 
 
-										## Licence
+```blocks
+input.onButtonPressed(Button.AB, () => {
+    basic.showNumber(weatherbit.soilTemperature())
+    serial.writeValue("soil temperature", weatherbit.soilTemperature())
+    basic.showNumber(weatherbit.soilMoisture())
+    serial.writeValue("soil moisture", weatherbit.soilMoisture())
+})
+input.onButtonPressed(Button.A, () => {
+    basic.showNumber(weatherbit.temperature())
+    serial.writeValue("temperature", weatherbit.temperature())
+    basic.showNumber(weatherbit.humidity())
+    serial.writeValue("humidity", weatherbit.humidity())
+    basic.showNumber(weatherbit.pressure())
+    serial.writeValue("pressure", weatherbit.pressure())
+    basic.showNumber(weatherbit.altitude())
+    serial.writeValue("altitude", weatherbit.altitude())
+})
+input.onButtonPressed(Button.B, () => {
+    basic.showNumber(weatherbit.windSpeed())
+    serial.writeValue("wind speed", weatherbit.windSpeed())
+    basic.showString(weatherbit.windDirection())
+    basic.pause(300)
+    // serial.writeValue("wind direction",
+    // weatherbit.windDirection())
+    basic.showNumber(weatherbit.rain())
+    serial.writeValue("rain", weatherbit.rain())
+})
+weatherbit.startRainMonitoring()
+weatherbit.startWindMonitoring()
+weatherbit.startWeatherMonitoring()
+serial.redirect(
+SerialPin.P15,
+SerialPin.P14,
+BaudRate.BaudRate9600
+)
+```
 
-										MIT
+## License
 
-										## Cibles prises en charge
+MIT
 
-										* pour PXT / microbit
+## Supported targets
+
+* for PXT/microbit
