@@ -1,0 +1,16 @@
+{
+  "weatherbit.altitude|block": "altitude(M)",
+  "weatherbit.humidity|block": "humidity",
+  "weatherbit.pressure|block": "pressure",
+  "weatherbit.rain|block": "rain",
+  "weatherbit.soilMoisture|block": "soil moisture",
+  "weatherbit.soilTemperature|block": "soil temperature(C)",
+  "weatherbit.startRainMonitoring|block": "start rain monitoring",
+  "weatherbit.startWeatherMonitoring|block": "start weather monitoring",
+  "weatherbit.startWindMonitoring|block": "start wind monitoring",
+  "weatherbit.temperature|block": "temperature(C)",
+  "weatherbit.windDirection|block": "wind direction",
+  "weatherbit.windSpeed|block": "wind speed",
+  "weatherbit|block": "weatherbit",
+  "{id:category}Weatherbit": "Weatherbit"
+}
