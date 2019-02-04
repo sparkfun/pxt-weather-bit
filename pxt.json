@@ -13,7 +13,7 @@
         "shims.d.ts",
         "enums.d.ts",
         "_locales/fr/weatherbit-strings.json",
-        "_locales/fr/weatherbit-jsdocs-strings.json"
+        "_locales/fr/weatherbit-jsdoc-strings.json"
     ],
     "testFiles": [
         "tests.ts"
