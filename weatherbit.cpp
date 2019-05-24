@@ -19,6 +19,7 @@
 #include "pxt.h"
 #include <cstdint>
 #include <math.h>
+#include <CriticalSectionLock.h>
 
 using namespace pxt;
 
@@ -32,12 +33,14 @@ namespace weatherbit {
     MicroBitPin P13 = uBit.io.P13;
 
     uint8_t init() {
+         CriticalSectionLock::enable();
         P12.setDigitalValue(0);
         for (volatile uint16_t i = 0; i < 600; i++);
         P12.setDigitalValue(1);
         for (volatile uint8_t i = 0; i < 30; i++);
         int b = P13.getDigitalValue();
         for (volatile uint16_t i = 0; i < 600; i++);
+         CriticalSectionLock::disable();
         return b;
     }
 
