@@ -28,6 +28,8 @@ using namespace pxt;
 #endif
 
 namespace weatherbit {
+
+    // Creating new MicroBitPin objects, because uBit.io.P12 and uBit.io.P13 are not always properly initiated.
     MicroBitPin P12(MICROBIT_ID_IO_P12, MICROBIT_PIN_P12, PIN_CAPABILITY_DIGITAL); 
     MicroBitPin P13(MICROBIT_ID_IO_P13, MICROBIT_PIN_P13, PIN_CAPABILITY_DIGITAL); 
 
@@ -164,7 +166,7 @@ namespace weatherbit {
         memcpy((uint8_t *) &digP2, ptr + 2, 2);
         memcpy((uint8_t *) &digP3, ptr + 4, 2);
         memcpy((uint8_t *) &digP4, ptr + 6, 2);
-        memcpy((uint8_t *) &digP5, ptr + 8, 2);
+        memcpy((uint8h_t *) &digP5, ptr + 8, 2);
         memcpy((uint8_t *) &digP6, ptr + 10, 2);
         memcpy((uint8_t *) &digP7, ptr + 12, 2);
         memcpy((uint8_t *) &digP8, ptr + 14, 2);
