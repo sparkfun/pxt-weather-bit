@@ -27,9 +27,9 @@ using namespace pxt;
 #define PXT_BUFFER_DATA(buffer) buffer->payload
 #endif
 
-namespace weatherbit {
-    MicroBitPin P12 = uBit.io.P12;
-    MicroBitPin P13 = uBit.io.P13;
+namespace weatherbit {    
+	MicroBitPin P12(MICROBIT_ID_IO_P12, MICROBIT_PIN_P12, PIN_CAPABILITY_DIGITAL); 
+    MicroBitPin P13(MICROBIT_ID_IO_P13, MICROBIT_PIN_P13, PIN_CAPABILITY_DIGITAL); 
 
     uint8_t init() {
         P12.setDigitalValue(0);
