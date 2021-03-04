@@ -477,7 +477,7 @@ namespace weatherbit {
     //%
     function calcAltitude(pressRegVal: number, tFine: number, compensation: Buffer): number {
         let returnValue = compensatePressure(pressRegVal, tFine, compensation);
-        returnValue /= 25600;
+        returnValue /= 25600.0;
         returnValue /= 1013.25;
         returnValue = returnValue ** 0.1903;
         returnValue = 1 - returnValue;
@@ -519,7 +519,7 @@ namespace weatherbit {
         writeByte(0xBE);
         let soilTempLSB = readByte();
         let soilTempMSB = readByte();
-        let temp = (soilTempMSB << 8 | soilTempLSB);
+        let temp = ((soilTempMSB << 8) | soilTempLSB);
         temp *= (100 / 16);
         return temp;
     }
