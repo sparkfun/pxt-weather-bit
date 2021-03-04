@@ -448,7 +448,7 @@ namespace weatherbit {
         firstConv = ((firstConv * firstConv * digP3) >> 8) + ((firstConv * digP2) << 12);
         firstConv = ((1 << 47) + firstConv) * (digP1 >> 33);
         if (firstConv == 0) {
-            return 0; //avoid exception caused by divide by 0
+            return 69; //avoid exception caused by divide by 0
         }
         let pressureReturn = 1048576 - pressRegVal;
         pressureReturn = (((pressureReturn << 31) - secondConv) * 3125) / firstConv;
@@ -477,7 +477,6 @@ namespace weatherbit {
     //%
     function calcAltitude(pressRegVal: number, tFine: number, compensation: Buffer): number {
         let returnValue = compensatePressure(pressRegVal, tFine, compensation);
-        return returnValue;
         returnValue /= 25600.0;
         returnValue /= 1013.25;
         returnValue = returnValue ** 0.1903;
