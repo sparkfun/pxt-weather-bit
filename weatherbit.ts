@@ -86,6 +86,86 @@ namespace weatherbit {
     const digH6 = 0xE7
 
     // Functions for interfacing with the Weather Meters
+    function init(): number {
+        pins.digitalWritePin(DigitalPin.P12, 0)
+        for (let i = 0; i < 600; i++) {
+
+        }
+        pins.digitalWritePin(DigitalPin.P12, 1)
+        for (let i = 0; i < 30; i++) {
+
+        }
+        let returnValue = pins.digitalReadPin(DigitalPin.P13)
+        for (let i = 0; i < 600; i++) {
+
+        }
+        return returnValue
+    }
+
+    function writeBit(bit: number) {
+        let delay1, delay2
+        if (bit == 1) {
+            delay1 = 1
+            delay2 = 80
+        }
+        else {
+            delay1 = 75
+            delay2 = 6
+        }
+        pins.digitalWritePin(DigitalPin.P12, 0)
+        for (let i = 0; i < delay1; i++) {
+
+        }
+        pins.digitalWritePin(DigitalPin.P12, 1)
+        for (let i = 0; i < delay2; i++) {
+
+        }
+    }
+
+    function writeByte(byte: number) {
+        for (let i = 0; i < 8; i++) {
+            if (byte & 1) {
+                writeBit(1) //This doesn't seem like it will work at all
+            } else {
+                writeBit(0)
+            }
+            byte = byte >> 1
+        }
+    }
+
+    function readBit(): number {
+        pins.digitalWritePin(DigitalPin.P12, 0)
+        pins.digitalWritePin(DigitalPin.P12, 1)
+        for (let i = 0; i < 20; i++) {
+
+        }
+        let returnValue = pins.digitalReadPin(DigitalPin.P13)
+        for (let i = 0; i < 60; i++) {
+
+        }
+        return returnValue
+    }
+
+    function readByte(): number {
+        let byte = 0
+        for (let i = 0; i < 8; i++) {
+            byte |= (readBit() << i);
+        }
+        return byte;
+    }
+
+    function convert(): number {
+        writeByte(0x44)
+        let j
+        for (let i = 0; i < 1000; i++) {
+            for (j = 0; j < 900; j++) {
+
+            }
+            if (readBit() == 1)
+                break;
+        }
+        return j
+    }
 
     /**
     * Reads the number of times the rain gauge has filled and emptied
@@ -349,10 +429,33 @@ namespace weatherbit {
     /**
      * Function used for simulator, actual implementation is in weatherbit.cpp
      */
-    //% shim=weatherbit::compensatePressure
+    //%
     function compensatePressure(pressRegVal: number, tFine: number, compensation: Buffer) {
-        // Fake function for simulator
-        return 0
+        let digP1: number = (compensation[0] << 8) | compensation[1];
+        let digP2: number = (compensation[2] << 8) | compensation[3];
+        let digP3: number = (compensation[4] << 8) | compensation[5];
+        let digP4: number = (compensation[6] << 8) | compensation[7];
+        let digP5: number = (compensation[8] << 8) | compensation[9];
+        let digP6: number = (compensation[10] << 8) | compensation[11];
+        let digP7: number = (compensation[12] << 8) | compensation[13];
+        let digP8: number = (compensation[14] << 8) | compensation[15];
+        let digP9: number = (compensation[16] << 8) | compensation[17];
+
+        let firstConv: number = tFine - 128000;
+        let secondConv: number = firstConv * firstConv * digP6;
+        secondConv += firstConv * digP5 << 17;
+        secondConv += digP4 << 35;
+        firstConv = ((firstConv * firstConv * digP3) >> 8) + ((firstConv * digP2) << 12);
+        firstConv = ((1 << 47) + firstConv) * (digP1 >> 33);
+        if (firstConv == 0) {
+            return 0; //avoid exception caused by divide by 0
+        }
+        let pressureReturn = 1048576 - pressRegVal;
+        pressureReturn = (((pressureReturn << 31) - secondConv) * 3125) / firstConv;
+        firstConv = (digP9 * (pressureReturn << 13) * (pressureReturn << 13)) >> 25;
+        secondConv = (digP8 * pressureReturn) >> 19;
+        pressureReturn = ((pressureReturn + firstConv + secondConv) >> 8) + (digP7 << 4);
+        return pressureReturn;
     }
 
     /**
@@ -368,13 +471,18 @@ namespace weatherbit {
         return calcAltitude((pressRegM << 4) | (pressRegL >> 4), tFine, digPBuf)
     }
 
-    /**
+    /** 
      * Function used for simulator, actual implementation is in weatherbit.cpp
      */
-    //% shim=weatherbit::calcAltitude
-    function calcAltitude(pressRegVal: number, tFine: number, compensation: Buffer) {
-        // Fake function for simulator
-        return 0
+    //%
+    function calcAltitude(pressRegVal: number, tFine: number, compensation: Buffer): number {
+        let returnValue = compensatePressure(pressRegVal, tFine, compensation);
+        returnValue /= 25600;
+        returnValue /= 1013.25;
+        returnValue = returnValue ** 0.1903;
+        returnValue = 1 - returnValue;
+        returnValue *= 44330;
+        return returnValue;
     }
 
 
@@ -398,12 +506,21 @@ namespace weatherbit {
     /**
      * Reads the temperature from the one-wire temperature sensor.
 	 * Returns a 4 digit number. value should be divided by 100 to get 
-	 *temperature in hudnreths of a degree centigrade. 
+	 * temperature in hudnreths of a degree centigrade. 
      */
     //% weight=10 blockId="weahterbit_soilTemp" block="soil temperature(C)"
-    //% shim=weatherbit::soilTemp
+    //%
     export function soilTemperature(): number {
-        // Fake function for simulator
-        return 0
+        init();
+        writeByte(0xCC);
+        convert();
+        init();
+        writeByte(0xCC);
+        writeByte(0xBE);
+        let soilTempLSB = readByte();
+        let soilTempMSB = readByte();
+        let temp = (soilTempMSB << 8 | soilTempLSB);
+        temp *= (100 / 16);
+        return temp;
     }
 }
