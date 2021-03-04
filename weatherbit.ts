@@ -477,6 +477,7 @@ namespace weatherbit {
     //%
     function calcAltitude(pressRegVal: number, tFine: number, compensation: Buffer): number {
         let returnValue = compensatePressure(pressRegVal, tFine, compensation);
+        return returnValue;
         returnValue /= 25600.0;
         returnValue /= 1013.25;
         returnValue = returnValue ** 0.1903;
