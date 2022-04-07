@@ -1,0 +1,19 @@
+{
+    "name": "jacdac-weather-bit",
+    "version": "0.0.19",
+    "description": "SparkFun weatherbit Jacdac",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*",
+        "weatherbit": "github:sparkfun/pxt-weather-bit",
+        "jacdac": "github:microsoft/pxt-jacdac"
+    },
+    "files": [
+        "README.md",
+        "jacdac.ts"
+    ],
+    "testFiles": [
+        "tests.ts"
+    ],
+    "public": true
+}

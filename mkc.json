@@ -1,0 +1,9 @@
+{
+    "links": {
+        "weatherbit": "."
+    },
+    "targetWebsite": "https://makecode.microbit.org/beta",
+    "overrides": {
+        "testDependencies": {}
+    }
+}
