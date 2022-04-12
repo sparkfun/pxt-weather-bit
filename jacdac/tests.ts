@@ -1,5 +1,5 @@
 forever(() => {
     console.logValue("rain", modules.weatherbitRain.precipitation())
-    console.logValue("wind speed", modules.weatherbitWindSpeed.windSpeed())    
-    pause(5000)
+    console.logValue("wind", modules.weatherbitWindSpeed.windSpeed())    
+    pause(1000)
 })
