@@ -6,9 +6,9 @@
     "dependencies": {
         "core": "*",
         "weatherbit": "github:sparkfun/pxt-weather-bit",
-        "jacdac": "github:microsoft/pxt-jacdac#v0.10.3",
-        "jacdac-wind-speed": "github:microsoft/pxt-jacdac/wind-speed#v0.10.3",
-        "jacdac-rain-gauge": "github:microsoft/pxt-jacdac/rain-gauge#v0.10.3"
+        "jacdac": "github:microsoft/pxt-jacdac#v0.10.5",
+        "jacdac-wind-speed": "github:microsoft/pxt-jacdac/wind-speed#v0.10.5",
+        "jacdac-rain-gauge": "github:microsoft/pxt-jacdac/rain-gauge#v0.10.5"
     },
     "files": [
         "README.md",

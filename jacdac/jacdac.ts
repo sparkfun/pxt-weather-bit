@@ -20,8 +20,6 @@ namespace modules {
 namespace servers {
     function start() {
         jacdac.startSelfServers(() => {
-            weatherbit.startRainMonitoring()
-            weatherbit.startWindMonitoring()
             const servers: jacdac.Server[] = [
                 jacdac.createSimpleSensorServer(
                     jacdac.SRV_RAIN_GAUGE,
@@ -30,6 +28,7 @@ namespace servers {
                     {
                         streamingInterval: 30000,
                         readingError: () => 25.4,
+                        statusCode: jacdac.SystemStatusCodes.Initializing
                     }
                 ),
                 jacdac.createSimpleSensorServer(
@@ -39,9 +38,20 @@ namespace servers {
                     {
                         streamingInterval: 2000,
                         readingError: () => 3,
+                        statusCode: jacdac.SystemStatusCodes.Initializing
                     }
                 ),
             ]
+
+            // booting
+            control.inBackground(() => {
+                weatherbit.startRainMonitoring()
+                weatherbit.startWindMonitoring()
+                for(const server of servers)
+                    server.setStatusCode(jacdac.SystemStatusCodes.Ready)
+            })
+
+            // return servers
             return servers
         })
     }
