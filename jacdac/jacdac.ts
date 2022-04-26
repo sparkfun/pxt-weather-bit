@@ -7,14 +7,14 @@ namespace modules {
      */
     //% fixedInstance whenUsed block="weatherbit rain"
     export const weatherbitRain = new modules.RainGaugeClient(
-        "weatherbit rain?device=self"
+        "weatherbit rain?dev=self"
     )
 
     /**
      * Wind speed from weather:bit
      */
     //% fixedInstance whenUsed block="weatherbit wind speed"
-    export const weatherbitWindSpeed = new modules.WindSpeedClient("weatherbit wind speed?device=self")
+    export const weatherbitWindSpeed = new modules.WindSpeedClient("weatherbit wind speed?dev=self")
 }
 
 namespace servers {
