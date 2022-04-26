@@ -1,6 +1,6 @@
 {
     "name": "weather-bit-jacdac",
-    "version": "0.0.21",
+    "version": "0.0.22",
     "description": "SparkFun weatherbit Jacdac",
     "license": "MIT",
     "dependencies": {
