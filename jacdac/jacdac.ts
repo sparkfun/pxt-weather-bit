@@ -18,8 +18,8 @@ namespace modules {
 }
 
 namespace servers {
-    jacdac.productIdentifier = 0x36dccd5c
     function start() {
+        jacdac.productIdentifier = 0x36dccd5c
         jacdac.startSelfServers(() => {
             const servers: jacdac.Server[] = [
                 jacdac.createSimpleSensorServer(
