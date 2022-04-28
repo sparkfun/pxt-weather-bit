@@ -20,6 +20,7 @@ namespace modules {
 namespace servers {
     function start() {
         jacdac.productIdentifier = 0x36dccd5c
+        jacdac.deviceDescription = "Sparkfun Weather:bit"
         jacdac.startSelfServers(() => {
             const servers: jacdac.Server[] = [
                 jacdac.createSimpleSensorServer(
