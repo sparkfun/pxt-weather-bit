@@ -4,9 +4,7 @@
     "description": "SparkFun weatherbit",
     "license": "MIT",
     "dependencies": {
-        "core": "*",
-        "jacdac-rain-gauge": "github:microsoft/pxt-jacdac/rain-gauge",
-        "jacdac-wind-speed": "github:microsoft/pxt-jacdac/wind-speed"
+        "core": "*"
     },
     "files": [
         "README.md",
