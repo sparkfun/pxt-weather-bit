@@ -5,7 +5,7 @@
     "license": "MIT",
     "dependencies": {
         "core": "*",
-        "weatherbit": "github:sparkfun/pxt-weather-bit",
+        "pxt-weather-bit": "github:sparkfun/pxt-weather-bit",
         "jacdac": "github:microsoft/pxt-jacdac#v0.10.27",
         "jacdac-wind-speed": "github:microsoft/pxt-jacdac/wind-speed#v0.10.27",
         "jacdac-rain-gauge": "github:microsoft/pxt-jacdac/rain-gauge#v0.10.27"
