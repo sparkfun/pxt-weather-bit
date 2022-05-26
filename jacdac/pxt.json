@@ -6,9 +6,9 @@
     "dependencies": {
         "core": "*",
         "pxt-weather-bit": "github:sparkfun/pxt-weather-bit",
-        "jacdac": "github:microsoft/pxt-jacdac#v0.10.27",
-        "jacdac-wind-speed": "github:microsoft/pxt-jacdac/wind-speed#v0.10.27",
-        "jacdac-rain-gauge": "github:microsoft/pxt-jacdac/rain-gauge#v0.10.27"
+        "jacdac": "github:microsoft/pxt-jacdac#v0.10.41",
+        "jacdac-wind-speed": "github:microsoft/pxt-jacdac/wind-speed#v0.10.41",
+        "jacdac-rain-gauge": "github:microsoft/pxt-jacdac/rain-gauge#v0.10.41"
     },
     "files": [
         "README.md",
@@ -19,7 +19,7 @@
     ],
     "public": true,
     "targetVersions": {
-        "target": "4.1.30",
+        "target": "4.1.44",
         "targetId": "microbit"
     },
     "supportedTargets": [
